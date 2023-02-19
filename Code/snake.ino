@@ -190,6 +190,21 @@ void Display_Apple(int x_tile_right, int y_tile_down){
  
 }
 
+void Display_Score_Screen(int score){
+  Display_Apple(-2,0);
+
+  String text = String(score);
+  tft.setTextSize(2);
+
+//change start position if double digit to look better
+  if(score < 10){
+  tft.drawString(text, 2*apple_radius, apple_radius+35);
+  }
+  else{
+    tft.drawString(text, apple_radius, apple_radius+35);
+  }
+}
+
 void snakeMovement() {
   /*
   if (direction.isClicked == 1) { //Snake Moves Right
