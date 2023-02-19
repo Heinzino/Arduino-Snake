@@ -84,7 +84,6 @@ bool snakeCollision() {
     }
   }
   return false;
-  //YHUHHH
 }
 
 
