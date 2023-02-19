@@ -23,6 +23,8 @@ int resetCount = 0;
 #define YELLOW 0xFFE0
 #define WHITE 0xFFFF
 #define DARK_GREEN 0x0B60
+#define GRASS_LIGHT_GREEN 0x0660
+#define GRASS_DARK_GREEN 0x0500
 
 
 // Board Varaibles
@@ -36,6 +38,8 @@ const int apple_radius = TILE_SIZE/3.0;
 const int white_tile = 10;
 const int black_tile = 9;
 
+const int score = 0;
+
 int snakeMap[NUM_OF_TILES][NUM_OF_TILES];
 int snakeX[NUM_OF_TILES];
 int snakeY[NUM_OF_TILES];
@@ -46,30 +50,20 @@ void setup() {
 
   // Initalize the screen and set the orientation correctly, then make sure it's clear.
   Initialize_Screen_and_Board();
-  Spawn_Snake();
-  Display_Apple(0,0);
-
 }
 
 void loop(){
  Serial.println("TEST");
 }
 
-void Initialize_Screen_and_Board(){
-  //Makes background black
-  tft.begin();
-  tft.setRotation(1); //Makes starting point at top left corner of the screen when its horizontal
-  tft.fillScreen(BLACK);
-  displayBoard();
-  
-}
+
 
 void createBoard() {
   //Board of the snake game
   //The board will go here, assuming 8x8
   for (int i = 0; i < NUM_OF_TILES; i++) {
     for (int j = 0; j < NUM_OF_TILES; j++) {
-      if((i + j) % 2 == 0) { //Black Tile 9 
+      if(((i + j) % 2) == 0) { //Black Tile 9 
         snakeMap[i][j] = black_tile;
       } else { //White Tile 10
         snakeMap[i][j] = white_tile;
@@ -84,24 +78,23 @@ void displayBoard() {
   for (int i = 0; i < NUM_OF_TILES; i++) {
     for (int j = 0; j < NUM_OF_TILES; j++) {
       if(snakeMap[i][j] == black_tile) {//Black Tile 9
-        tft.drawRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, BLACK);
+        tft.drawRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_DARK_GREEN);
+        tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_DARK_GREEN);
       } else { //White Tile 10
-        tft.drawRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, WHITE);
+        tft.drawRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_LIGHT_GREEN);
+        tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_LIGHT_GREEN);
       }
     }
   }
 }
 
 
-void Spawn_Snake(){
-  //Spawns green rectangle on the (4,4) square of the board
-
-  int x_tile_right = 3;
-  int y_tile_down = 3;
+void Spawn_Snake(int x_tile_right, int y_tile_down){
+  //Spawns green rectangle on (x_tile_right + 1, y_tile_down + 1) square on board
   int snake_spawn_x = START_X + (x_tile_right* TILE_SIZE);
   int snake_spawn_y = START_Y + (y_tile_down * TILE_SIZE);
   
-  tft.fillRect(snake_spawn_x, snake_spawn_y, TILE_SIZE, TILE_SIZE, GREEN);
+  tft.fillRect(snake_spawn_x, snake_spawn_y, TILE_SIZE, TILE_SIZE, MAGENTA);
 
 }
 
@@ -129,5 +122,24 @@ void Display_Score_Screen(int score){
 
   String text = String(score);
   tft.setTextSize(2);
-  tft.drawString(text, apple_radius, apple_radius+20);
+
+//change start position if double digit to look better
+  if(score < 10){
+  tft.drawString(text, 2*apple_radius, apple_radius+35);
+  }
+  else{
+    tft.drawString(text, apple_radius, apple_radius+35);
+  }
 }
+
+void Initialize_Screen_and_Board(){
+  //Makes background black
+  tft.begin();
+  tft.setRotation(1); //Makes starting point at top left corner of the screen when its horizontal
+  tft.fillScreen(BLACK);
+  createBoard();
+  displayBoard();
+  Spawn_Snake(3,3);   //Starts snake at (4,4) square on board
+  Display_Score_Screen(score); //Display score of 0 
+}
+  
