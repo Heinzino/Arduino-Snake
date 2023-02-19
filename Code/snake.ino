@@ -15,6 +15,7 @@
 #define MAGENTA 0xF81F
 #define YELLOW 0xFFE0
 #define WHITE 0xFFFF
+#define DARK_GREEN 0x0B60
 //MIGHT NEED TO FIND 4-DIGIT HEX FOR DIFF COLOUR OF GREENS -Aidan
 
 //Create the screen variable from the library
@@ -99,6 +100,18 @@ void Initialize_Screen_and_Board(){
   tft.fillScreen(BLACK);
   displayBoard();
   
+}
+
+void Spawn_Snake(){
+  //Spawns green rectangle on the (4,4) square of the board
+
+  int x_tile_right = 3;
+  int y_tile_down = 3;
+  int snake_spawn_x = START_X + (x_tile_right* TILE_SIZE);
+  int snake_spawn_y = START_Y + (y_tile_down * TILE_SIZE);
+  
+  tft.fillRect(snake_spawn_x, snake_spawn_y, TILE_SIZE, TILE_SIZE, GREEN);
+
 }
 
 void howToPlayPage() {
