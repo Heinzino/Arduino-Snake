@@ -83,18 +83,6 @@ int joystick_x_read = analogRead(JOYSTICK_X_PIN); // 1023 is right, 0 is left
 int joystick_y_read = analogRead(JOYSTICK_Y_PIN); // 1023 is down, 0 is up
 
 
-//Idk yet tbh
-struct fruit {
-  int xDir;
-  int yDir;
-};
-
-//Coordinates are just test points (assumed)
-Button next = {0, 0, 90, 45, "NEXT", false};
-Button prev = {0, 0, 90, 45, "PREV", false};
-Button play = {0, 0, 100, 100, "START", false};
-Button retry = {0, 0, 100, 100, "PLAY AGAIN", false};
-
 
 void Initialize_Screen_and_Board(){
   //Makes background black
@@ -238,6 +226,28 @@ bool snakeCollision() {
   }
   return false;
 }
+
+void Snake_Eye(){
+
+  int snakeX_pos = 3;
+  int snakeY_pos = 3;
+  int eye_radius = 5;
+  int pupil_radius = 3;
+
+  //First eye
+  float origin_xo = START_X + (snakeX_pos * TILE_SIZE) + TILE_SIZE*0.75;
+  float origin_yo = START_Y + ((snakeY_pos+1) * TILE_SIZE) - TILE_SIZE*0.75;
+  tft.fillCircle(origin_xo, origin_yo, eye_radius, WHITE);
+  tft.fillCircle(origin_xo, origin_yo, pupil_radius, BLACK);
+
+  //Second eye
+  float origin_x = origin_xo;
+  float origin_y = START_Y + ((snakeY_pos+1) * TILE_SIZE) - TILE_SIZE*0.25;
+  tft.fillCircle(origin_x, origin_y, eye_radius, WHITE);
+  tft.fillCircle(origin_x, origin_y, pupil_radius, BLACK);
+  
+}
+
 
 bool snakeCollision(int apple) {
   //Only checks if the head of the snake collides with where the apple is on the map  

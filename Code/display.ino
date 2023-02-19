@@ -60,7 +60,8 @@ void setup() {
   digitalWrite(JOYSTICK_BUTTON_PIN, HIGH);
 
   //Snake starts on (4,4)
-
+  snakeX[0] = 3;
+  snakeY[0] = 3;
 
 }
 
@@ -85,22 +86,6 @@ void createBoard() {
     }
   }
 }
-
-
-//void displayBoard() {
-  //This will display the whole board on the Arduino SPI LCD
-  //for (int i = 0; i < NUM_OF_TILES; i++) {
-    //for (int j = 0; j < NUM_OF_TILES; j++) {
-      //if(snakeMap[i][j] == black_tile) {//Black Tile 9
-        //tft.drawRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_DARK_GREEN);
-        //tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_DARK_GREEN);
-      //} else { //White Tile 10
-        //tft.drawRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_LIGHT_GREEN);
-        //tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_LIGHT_GREEN);
-      //}
-    //}
-  //}
-//}
 
 
 void Spawn_Snake(int x_tile_right, int y_tile_down){
@@ -146,17 +131,44 @@ void Display_Score_Screen(int score){
   }
 }
 
+
+void Snake_Eye(){
+
+  int snakeX_pos = 3;
+  int snakeY_pos = 3;
+  int eye_radius = 5;
+  int pupil_radius = 3;
+
+  //First eye
+  float origin_xo = START_X + (snakeX_pos * TILE_SIZE) + TILE_SIZE*0.75;
+  float origin_yo = START_Y + ((snakeY_pos+1) * TILE_SIZE) - TILE_SIZE*0.75;
+  tft.fillCircle(origin_xo, origin_yo, eye_radius, WHITE);
+  tft.fillCircle(origin_xo, origin_yo, pupil_radius, BLACK);
+
+  //Second eye
+  float origin_x = origin_xo;
+  float origin_y = START_Y + ((snakeY_pos+1) * TILE_SIZE) - TILE_SIZE*0.25;
+  tft.fillCircle(origin_x, origin_y, eye_radius, WHITE);
+  tft.fillCircle(origin_x, origin_y, pupil_radius, BLACK);
+  
+}
+
+
 void Initialize_Screen_and_Board(){
   //Makes background black
   tft.begin();
   tft.setRotation(1); //Makes starting point at top left corner of the screen when its horizontal
   tft.fillScreen(BLACK);
   createBoard();
-  displayBoard();
   Spawn_Snake(3,3);   //Starts snake at (4,4) square on board
+  Snake_Eye();
   Display_Score_Screen(score); //Display score of 0 
 }
 
-void snakeMovement(){
-
+bool snakeCollision() {
+  //Collision with borders
+  if (snakeX[0] < 0 || snakeY[0] < 0 || snakeX[0] > (NUM_OF_TILES-1) || snakeX[0] > (NUM_OF_TILES-1)) {
+    return true;
+  }
+  //Collision with itself
 }
