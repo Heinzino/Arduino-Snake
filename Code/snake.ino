@@ -57,7 +57,6 @@ void setup() {
   snakeY[NUM_OF_TILES / 2] = 8;
   snakeY[NUM_OF_TILES / 2 + 1] = 8;
 
-  createBoard();
   snakeMovement();
 
   if(snakeCollision()) {
@@ -100,14 +99,13 @@ void Initialize_Screen_and_Board(){
   tft.setRotation(1); //Makes starting point at top left corner of the screen when its horizontal
   tft.fillScreen(BLACK);
   displayBoard();
+  Spawn_Snake(3,3);   //Starts snake at (4,4) square on board
+  Display_Score_Screen(0); //Display score of 0  -> Future should be more dyanmic
   
 }
 
-void Spawn_Snake(){
-  //Spawns green rectangle on the (4,4) square of the board
-
-  int x_tile_right = 3;
-  int y_tile_down = 3;
+void Spawn_Snake(int x_tile_right, int y_tile_down){
+  //Spawns green rectangle on (x_tile_right + 1, y_tile_down + 1) square on board
   int snake_spawn_x = START_X + (x_tile_right* TILE_SIZE);
   int snake_spawn_y = START_Y + (y_tile_down * TILE_SIZE);
   
@@ -160,6 +158,7 @@ void createBoard() {
 
 void displayBoard() {
   //This will display the whole board on the Arduino SPI LCD
+  createBoard();
   for (int i = 0; i < NUM_OF_TILES; i++) {
     for (int j = 0; j < NUM_OF_TILES; j++) {
       if(snakeMap[i][j] == black_tile) {//Black Tile 9
