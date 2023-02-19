@@ -9,9 +9,9 @@ float cursorY = 160.0;
 int resetCount = 0;
 
 // Setting the joystick pins here so we can easily change them
-#define JOYSTICK_X_PIN A7
-#define JOYSTICK_Y_PIN A6
-#define JOYSTICK_BUTTON_PIN 34
+#define JOYSTICK_X_PIN A0
+#define JOYSTICK_Y_PIN A1
+#define JOYSTICK_BUTTON_PIN 46
 
 // Define colours in 4-digit hex                                  
 #define BLACK 0x0000

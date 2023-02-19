@@ -48,6 +48,9 @@ void setup() {
   Serial.begin(9600);
 
   Initialze_Screen_and_Board();
+
+  pinMode(JOYSTICK_BUTTON_PIN, INPUT);
+  digitalWrite(JOYSTICK_BUTTON_PIN, HIGH);
   
   //Starts of page
   howToPlayPage();
@@ -71,14 +74,12 @@ void loop() {
 
 }
 
-struct Button {
-  int xDir;
-  int yDir;
-  int width; 
-  int length;
-  char label[20];
-  bool isClicked;
-};
+
+//Joy Stick Details
+int joystick_button_read = digitalRead(JOYSTICK_BUTTON_PIN);  // 1 is off 0 is on
+int joystick_x_read = analogRead(JOYSTICK_X_PIN); // 1023 is right, 0 is left
+int joystick_y_read = analogRead(JOYSTICK_Y_PIN); // 1023 is down, 0 is up
+
 
 //Idk yet tbh
 struct fruit {
