@@ -53,7 +53,7 @@ void howToPlayPage() {
   }
   */
 }
-
+f d
 
 void createBoard() {
   //Board of the snake game
