@@ -158,7 +158,7 @@ void createBoard() {
 
 void displayBoard() {
   //This will display the whole board on the Arduino SPI LCD
-  createBoard();
+
   for (int i = 0; i < NUM_OF_TILES; i++) {
     for (int j = 0; j < NUM_OF_TILES; j++) {
       if(snakeMap[i][j] == black_tile) {//Black Tile 9
