@@ -99,6 +99,7 @@ void Initialize_Screen_and_Board(){
   tft.begin();
   tft.setRotation(1); //Makes starting point at top left corner of the screen when its horizontal
   tft.fillScreen(BLACK);
+  createBoard();
   displayBoard();
   Spawn_Snake(3,3);   //Starts snake at (4,4) square on board
   Display_Score_Screen(score); //Display score of 0 
@@ -148,7 +149,7 @@ void createBoard() {
   //The board will go here, assuming 8x8
   for (int i = 0; i < NUM_OF_TILES; i++) {
     for (int j = 0; j < NUM_OF_TILES; j++) {
-      if((i + j) % 2 == 0) { //Black Tile 9 
+      if(((i + j) % 2 )== 0) { //Black Tile 9 
         snakeMap[i][j] = black_tile;
       } else { //White Tile 10
         snakeMap[i][j] = white_tile;
