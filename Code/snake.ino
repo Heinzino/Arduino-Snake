@@ -73,57 +73,51 @@ void loop() {
 
 }
 
-struct Button() {
+struct Button {
   int xDir;
   int yDir;
   int width; 
   int length;
   char label[20];
+  bool isClicked;
 };
 
 //Idk yet tbh
-struct fruit() {
+struct fruit {
   int xDir;
   int yDir;
-}
+};
 
 //Coordinates are just test points (assumed)
-Button next = {0, 0, 90, 45, "NEXT"};
-Button prev = {0, 0, 90, 45, "PREV"};
-Button play = {0, 0, 100, 100, "START"};
-Button retry = {0, 0, 100, 100, "PLAY AGAIN"};
+Button next = {0, 0, 90, 45, "NEXT", false};
+Button prev = {0, 0, 90, 45, "PREV", false};
+Button play = {0, 0, 100, 100, "START", false};
+Button retry = {0, 0, 100, 100, "PLAY AGAIN", false};
 
 void howToPlayPage() {
   //Beginning of the page
   int pageNumber = 1;
   //This screen will show until the player clicks start to play the game
-  while(!play.isClicked()) {
-
-    /* Yea idk where i was going with this here
-    if(next.isClicked()) {
-      pageNumber += 1;
+  while(!play.isClicked) {
+    switch(pageNumber) {
+      case 1:
+        tft.println("WELCOME TO SNAKE GAME!");
+        tft.println("Before you begin please read through these pages!");
+        break;
+      case 2:
+        //SHOW EVERYTHING IN PAGE 2
+        break;
+      case 3: 
+        //SHOW EVERYTHING IN PAGE 3
+        break;
     }
-    if(prev.isClicked()) {
-      pageNumber -= 1;
+    //To ensure user does not go above page 3
+    if(next.isClicked) {
+      pageNumber = min(pageNumber + 1, 3);
     }
-    */
-
-    //Page 1
-    if(pageNumber == 1 || (prev.isClicked() == true && pageNumber == 2)) {
-      pageNumber += 1;
-      tft.println("WELCOME TO SNAKE GAME!");
-      tft.println("Before you begin please read through these pages!");
-    }
-
-    //Page 2
-    //Theres probably a logic error here
-    if((next.isClicked() == true && pageNumber == 1) || (prev.isClicked() == true && pageNumber == 3)) {
-      //SHOW EVERYTHING IN PAGE TWO HERE
-    }
-
-    //Page 3
-    if((next.isClicked() == true && pageNumber == 2)) {
-      //SHOW EVERYTHING IN PAGE THREE HERE
+    //To ensure user does not go below page 1
+    if(prev.isClicked) {
+      pageNumber = max(pageNumber - 1, 1);
     }
   }
 }
@@ -157,15 +151,17 @@ void displayBoard() {
 }
 
 void snakeMovement() {
-  if (direction.isClicked() == 1) { //Snake Moves Right
+  /*
+  if (direction.isClicked == 1) { //Snake Moves Right
     snakeX[0] += 1;
-  } else if(direction.isClicked() == 2) { //Snake Moves Up
+  } else if(direction.isClicked == 2) { //Snake Moves Up
     snakeY[0] += 1; 
-  } else if(direction.isClicked() == 3) { //Snake Moves Left
+  } else if(direction.isClicked == 3) { //Snake Moves Left
     snakeX[0] -= 1;
-  } else if(direction.isClicked() == 4) { //Snake Moves Down
+  } else if(direction.isClicked == 4) { //Snake Moves Down
     snakeY[0] -= 1; 
   }
+  */
 }
 
 bool snakeCollision() {
@@ -189,20 +185,23 @@ bool snakeCollision(int apple) {
 void appleSpawn(int time) {
   int appleX = random(NUM_OF_TILES);
   int appleY = random(NUM_OF_TILES);
-  bool noApple = true;
+  bool apple = false;
+  int counter = 0;
 
-  while(!noApple) {
+  //Got to be a more efficient way to place the apples this could go on for a long time and crash 
+  while(!apple && counter < 50) {
     for (int i = 1; i < snakeLength; i++) {
       //If the apple is on the snake
       if (appleX == snakeX[i] || appleY == snakeY[i]) {
         //It will assign a new positon for the apple to be in
         appleX = random(NUM_OF_TILES);
         appleY = random(NUM_OF_TILES);
+        counter++;
       } else {
         //otherwise it will be put on the map 
         snakeMap[appleX][appleY] = 7;
         //apple is now on the map so it gets out of both loops
-        noApple = false;
+        apple = true;
         break;
       }
     }
@@ -212,7 +211,7 @@ void appleSpawn(int time) {
 
 //Do i even need this since there will be a button for this?
 bool playAgain() {
-  if(retry.isClicked()) {
+  if(retry.isClicked) {
     //resets the stats for everything
     snakeLength = 3;
     score = 0;
