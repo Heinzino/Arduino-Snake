@@ -44,12 +44,24 @@ int snakeMap[NUM_OF_TILES][NUM_OF_TILES];
 int snakeX[NUM_OF_TILES];
 int snakeY[NUM_OF_TILES];
 
+int joystick_button_read = digitalRead(JOYSTICK_BUTTON_PIN);  // 1 is off 0 is on
+int joystick_x_read = analogRead(JOYSTICK_X_PIN); // 1023 is right, 0 is left
+int joystick_y_read = analogRead(JOYSTICK_Y_PIN); // 1023 is down, 0 is up
+
 
 
 void setup() {
 
   // Initalize the screen and set the orientation correctly, then make sure it's clear.
   Initialize_Screen_and_Board();
+
+  //Joystick Initialzie
+  pinMode(JOYSTICK_BUTTON_PIN, INPUT);
+  digitalWrite(JOYSTICK_BUTTON_PIN, HIGH);
+
+  //Snake starts on (4,4)
+
+
 }
 
 void loop(){
@@ -64,29 +76,31 @@ void createBoard() {
   for (int i = 0; i < NUM_OF_TILES; i++) {
     for (int j = 0; j < NUM_OF_TILES; j++) {
       if(((i + j) % 2) == 0) { //Black Tile 9 
-        snakeMap[i][j] = black_tile;
-      } else { //White Tile 10
-        snakeMap[i][j] = white_tile;
-      }
-    }
-  }
-}
-
-
-void displayBoard() {
-  //This will display the whole board on the Arduino SPI LCD
-  for (int i = 0; i < NUM_OF_TILES; i++) {
-    for (int j = 0; j < NUM_OF_TILES; j++) {
-      if(snakeMap[i][j] == black_tile) {//Black Tile 9
         tft.drawRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_DARK_GREEN);
-        tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_DARK_GREEN);
+        tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_DARK_GREEN);snakeMap[i][j] = black_tile;
       } else { //White Tile 10
         tft.drawRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_LIGHT_GREEN);
-        tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_LIGHT_GREEN);
+        tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_LIGHT_GREEN);snakeMap[i][j] = white_tile;
       }
     }
   }
 }
+
+
+//void displayBoard() {
+  //This will display the whole board on the Arduino SPI LCD
+  //for (int i = 0; i < NUM_OF_TILES; i++) {
+    //for (int j = 0; j < NUM_OF_TILES; j++) {
+      //if(snakeMap[i][j] == black_tile) {//Black Tile 9
+        //tft.drawRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_DARK_GREEN);
+        //tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_DARK_GREEN);
+      //} else { //White Tile 10
+        //tft.drawRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_LIGHT_GREEN);
+        //tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_LIGHT_GREEN);
+      //}
+    //}
+  //}
+//}
 
 
 void Spawn_Snake(int x_tile_right, int y_tile_down){
@@ -142,4 +156,7 @@ void Initialize_Screen_and_Board(){
   Spawn_Snake(3,3);   //Starts snake at (4,4) square on board
   Display_Score_Screen(score); //Display score of 0 
 }
-  
+
+void snakeMovement(){
+
+}
