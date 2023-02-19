@@ -1,3 +1,5 @@
+#include <TFT_eSPI.h>
+
 const int TILE_SIZE = 8;
 int score = 0;
 int snakeMap[TILE_SIZE][TILE_SIZE];
@@ -16,14 +18,10 @@ void setup() {
   snakeY[TILE_SIZE / 2] = 8;
   snakeY[TILE_SIZE / 2 + 1] = 8;
 
-
-
-
   Serial.begin(9600);
   howToPlayPage();
   createBoard();
   snakeMovement();
-
 
   if(snakeCollision()) {
     Serial.println("YOU LOSE LMFAO");
@@ -34,6 +32,7 @@ void setup() {
 
 
 void loop() {
+
 }
 
 
@@ -57,8 +56,6 @@ void howToPlayPage() {
 
 void createBoard() {
   //Board of the snake game
-
-
   //The board will go here, assuming 8x8
   for (int i = 0; i < TILE_SIZE; i++) {
     for (int j = 0; j < TILE_SIZE; j++) {
@@ -67,8 +64,21 @@ void createBoard() {
   }
 }
 
+void displayBoard() {
+  //This will display the whole board on the Arduino SPI LCD
+}
+
 
 void snakeMovement() {
+  if (direction.isClicked() == 1) { //Snake Moves Right
+    snakeX[0] += 1;
+  } else if(direction.isClicked() == 2) { //Snake Moves Up
+    snakeY[0] += 1; 
+  } else if(direction.isClicked() == 3) { //Snake Moves Left
+    snakeX[0] -= 1;
+  } else if(direction.isClicked() == 4) { //Snake Moves Down
+    snakeY[0] -= 1; 
+  }
 }
 
 
@@ -94,10 +104,10 @@ bool snakeCollision(int apple) {
   }
 }
 
-
 void appleSpawn(int number) {
   snakeMap[random(TILE_SIZE)][random(TILE_SIZE)] = 7;
 }
+
 bool playAgain() {
   return true;
 }
