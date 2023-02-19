@@ -170,6 +170,26 @@ void displayBoard() {
   }
 }
 
+void Display_Apple(int x_tile_right, int y_tile_down){
+  
+  //made it a bit smaller so it doesn't conflict with the border
+  float radius = TILE_SIZE / 3.0;
+  float origin_x = START_X + (x_tile_right*TILE_SIZE) + TILE_SIZE/2.0;
+  float origin_y = START_Y + (y_tile_down*TILE_SIZE) + TILE_SIZE/2.0;
+
+  float leaf_xo = origin_x;
+  float leaf_yo = origin_y - radius;
+  float leaf_x = leaf_xo + radius;
+  float leaf_y = leaf_yo - 3;
+  
+  tft.fillCircle(origin_x, origin_y, radius, RED);
+  tft.drawLine(leaf_xo, leaf_yo, leaf_x, leaf_y, DARK_GREEN);
+  tft.drawLine(leaf_xo, leaf_yo, leaf_x-1, leaf_y-1, DARK_GREEN);
+  tft.drawLine(leaf_xo, leaf_yo, leaf_x+1, leaf_y+1, DARK_GREEN);
+  tft.drawLine(leaf_xo, leaf_yo, leaf_x-2, leaf_y-2, DARK_GREEN);
+ 
+}
+
 void snakeMovement() {
   /*
   if (direction.isClicked == 1) { //Snake Moves Right

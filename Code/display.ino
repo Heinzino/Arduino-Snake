@@ -22,6 +22,7 @@ int resetCount = 0;
 #define MAGENTA 0xF81F
 #define YELLOW 0xFFE0
 #define WHITE 0xFFFF
+#define DARK_GREEN 0x0B60
 
 
 // Board Varaibles
@@ -38,6 +39,20 @@ int snakeMap[NUM_OF_TILES][NUM_OF_TILES];
 int snakeX[NUM_OF_TILES];
 int snakeY[NUM_OF_TILES];
 
+
+
+void setup() {
+
+  // Initalize the screen and set the orientation correctly, then make sure it's clear.
+  Initialize_Screen_and_Board();
+  Spawn_Snake();
+  Display_Apple(0,0);
+
+}
+
+void loop(){
+ Serial.println("TEST");
+}
 
 void Initialize_Screen_and_Board(){
   //Makes background black
@@ -80,22 +95,20 @@ void displayBoard() {
 void Spawn_Snake(){
   //Spawns green rectangle on the (4,4) square of the board
 
-  int x_tile_right = 4;
-  int y_tile_down = -4;
-  int snake_spawn_x = x_tile_right* TILE_SIZE;
-  int snake_spawn_y = y_tile_down * TILE_SIZE;
-
+  int x_tile_right = 3;
+  int y_tile_down = 3;
+  int snake_spawn_x = START_X + (x_tile_right* TILE_SIZE);
+  int snake_spawn_y = START_Y + (y_tile_down * TILE_SIZE);
+  
   tft.fillRect(snake_spawn_x, snake_spawn_y, TILE_SIZE, TILE_SIZE, GREEN);
 
 }
 
-void setup() {
+void Display_Apple(int x_tile_right, int y_tile_down){
 
-  Initialze_Screen_and_Board();
-  Spawn_Snake();
+  float radius = TILE_SIZE / 2.0;
+  float origin_x = START_X + (x_tile_right*TILE_SIZE) + radius;
+  float origin_y = START_Y + (y_tile_down*TILE_SIZE) + radius;
 
-}
-
-void loop(){
- 
+  tft.fillCircle(origin_x, origin_y, radius, RED);
 }
