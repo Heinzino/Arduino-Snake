@@ -100,7 +100,7 @@ void Initialize_Screen_and_Board(){
   tft.fillScreen(BLACK);
   displayBoard();
   Spawn_Snake(3,3);   //Starts snake at (4,4) square on board
-  Display_Score_Screen(0); //Display score of 0  -> Future should be more dyanmic
+  Display_Score_Screen(score); //Display score of 0 
   
 }
 
