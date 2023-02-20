@@ -49,6 +49,103 @@ int joystick_x_read = analogRead(JOYSTICK_X_PIN); // 1023 is right, 0 is left
 int joystick_y_read = analogRead(JOYSTICK_Y_PIN); // 1023 is down, 0 is up
 
 
+class Snake {
+  private:
+    int headX, headY; // Coordinates of the snake's head
+    int tailX, tailY; // Coordinates of the snake's tail
+    int length; // Length of the snake
+    int direction; // Current direction of the snake
+    int bodyX[NUM_OF_TILES*NUM_OF_TILES-1]; // X-coordinates of the snake's body segments
+    int bodyY[NUM_OF_TILES*NUM_OF_TILES-1]; // Y-coordinates of the snake's body segments
+
+  public:
+    // Constructor
+    Snake(int startX, int startY) {
+      headX = startX;
+      headY = startY;
+      tailX = startX;
+      tailY = startY;
+      length = 1;
+      direction = 0; // 0: right, 1: down, 2: left, 3: up
+    }
+
+    // Moves the snake in its current direction
+    void move() {
+      // Update the coordinates of the head based on the current direction
+      switch(direction) {
+        case 0: // right
+          headX++;
+          break;
+        case 1: // down
+          headY++;
+          break;
+        case 2: // left
+          headX--;
+          break;
+        case 3: // up
+          headY--;
+          break;
+      }
+
+      // Update the coordinates of the tail and body segments
+      bodyX[length-1] = tailX;
+      bodyY[length-1] = tailY;
+
+      for(int i = length-1; i > 0; i--) {
+        bodyX[i-1] = bodyX[i];
+        bodyY[i-1] = bodyY[i];
+      }
+
+      tailX = bodyX[0];
+      tailY = bodyY[0];
+
+      // Check if the snake has collided with the wall or with itself
+      if(headX < 0 || headX >= NUM_OF_TILES || headY < 0 || headY >= NUM_OF_TILES) {
+        // Collided with the wall
+        // Handle collision
+      }
+      else {
+        for(int i = 0; i < length; i++) {
+          if(headX == bodyX[i] && headY == bodyY[i]) {
+            // Collided with itself
+            // Handle collision
+            break;
+          }
+        }
+      }
+    }
+
+    // Changes the direction of the snake
+    void changeDirection(int newDirection) {
+      // Only allow changing direction if it's not opposite to the current direction
+      if(abs(newDirection - direction) != 2) {
+        direction = newDirection;
+      }
+    }
+
+    // Increases the length of the snake
+    void increaseLength() {
+      length++;
+    }
+
+    // Returns the current direction of the snake
+    int getDirection() {
+      return direction;
+    }
+
+    // Returns the X-coordinate of the head
+    int getHeadX() {
+      return headX;
+    }
+
+    // Returns the Y-coordinate of the head
+    int getHeadY() {
+      return headY;
+    }
+};
+
+//Snake starts at (4,4) square
+Snake snake(3,3);
 
 void setup() {
 
@@ -59,9 +156,6 @@ void setup() {
   pinMode(JOYSTICK_BUTTON_PIN, INPUT);
   digitalWrite(JOYSTICK_BUTTON_PIN, HIGH);
 
-  //Snake starts on (4,4)
-  snakeX[0] = 3;
-  snakeY[0] = 3;
 
 }
 
@@ -78,10 +172,10 @@ void createBoard() {
     for (int j = 0; j < NUM_OF_TILES; j++) {
       if(((i + j) % 2) == 0) { //Black Tile 9 
         tft.drawRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_DARK_GREEN);
-        tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_DARK_GREEN);snakeMap[i][j] = black_tile;
+        tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_DARK_GREEN);
       } else { //White Tile 10
         tft.drawRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_LIGHT_GREEN);
-        tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_LIGHT_GREEN);snakeMap[i][j] = white_tile;
+        tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_LIGHT_GREEN);
       }
     }
   }
@@ -134,8 +228,8 @@ void Display_Score_Screen(int score){
 
 void Snake_Eye(){
 
-  int snakeX_pos = 3;
-  int snakeY_pos = 3;
+  int snakeX_pos = snake.getHeadX();
+  int snakeY_pos = snake.getHeadY();
   int eye_radius = 5;
   int pupil_radius = 3;
 
@@ -160,15 +254,34 @@ void Initialize_Screen_and_Board(){
   tft.setRotation(1); //Makes starting point at top left corner of the screen when its horizontal
   tft.fillScreen(BLACK);
   createBoard();
-  Spawn_Snake(3,3);   //Starts snake at (4,4) square on board
+  Spawn_Snake(snake.getHeadX(),snake.getHeadY());   //Starts snake at (4,4) square on board
   Snake_Eye();
   Display_Score_Screen(score); //Display score of 0 
 }
 
-bool snakeCollision() {
-  //Collision with borders
-  if (snakeX[0] < 0 || snakeY[0] < 0 || snakeX[0] > (NUM_OF_TILES-1) || snakeX[0] > (NUM_OF_TILES-1)) {
-    return true;
+
+void Joystick_Direction(){
+  // Determine the dominant axis of the joystick movement
+if(abs(joystick_x_read - 520) > abs(joystick_y_read - 501)) {
+  // Move the snake horizontally
+  if(joystick_x_read > 520) {
+    // Move right
+    snake.changeDirection(0);
   }
-  //Collision with itself
+  else {
+    // Move left
+    snake.changeDirection(2);
+  }
+}
+else {
+  // Move the snake vertically
+  if(joystick_y_read > 501) {
+    // Move down
+    snake.changeDirection(1);
+  }
+  else {
+    // Move up
+    snake.changeDirection(3);
+  }
+}
 }
