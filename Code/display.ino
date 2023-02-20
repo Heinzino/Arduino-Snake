@@ -3,11 +3,6 @@
 //create the screen variable from the library
 TFT_eSPI tft = TFT_eSPI();
 
-// Set up variables for the cursor and counter. Cursor starts in the middle of the screen.
-float cursorX = 240.0;
-float cursorY = 160.0;
-int resetCount = 0;
-
 // Setting the joystick pins here so we can easily change them
 #define JOYSTICK_X_PIN A0
 #define JOYSTICK_Y_PIN A1
@@ -38,8 +33,8 @@ const int apple_radius = TILE_SIZE/3.0;
 const int white_tile = 10;
 const int black_tile = 9;
 
-const int score = 0;
-const int apple_counter = 0;
+int score = 0;
+int apple_counter = 0;
 
 int snakeMap[NUM_OF_TILES][NUM_OF_TILES];
 int snakeX[NUM_OF_TILES];
@@ -209,6 +204,7 @@ void loop(){
  snake.move();
  display_snake_head();
  TailDisplay();
+ spawnApple();
  delay(1000);
 }
 
@@ -368,7 +364,7 @@ void spawnApple(){
 
   if(apple_counter == 0){
 
-    int appleX, appleY;
+    long appleX, appleY;
 
     do{
     appleX = random(NUM_OF_TILES);
@@ -376,7 +372,9 @@ void spawnApple(){
     }
     while(snake.isBodyPart(appleX,appleY)); //Generate new if apple is part of body
 
+    apple_counter++;
     Apple apple(appleX,appleY);
 
   }
 }
+
