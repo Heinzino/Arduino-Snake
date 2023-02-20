@@ -39,6 +39,7 @@ const int white_tile = 10;
 const int black_tile = 9;
 
 const int score = 0;
+const int apple_counter = 0;
 
 int snakeMap[NUM_OF_TILES][NUM_OF_TILES];
 int snakeX[NUM_OF_TILES];
@@ -156,6 +157,17 @@ class Snake {
     int getHeadY() {
       return headY;
     }
+
+    bool isBodyPart(int x, int y) {
+      for (int i = 0; i < length; i++) {
+        if (bodyX[i] == x && bodyY[i] == y) {
+          return true;
+        }
+      }
+    return false;
+  }
+
+    
 };
 
 //Snake starts at (4,4) square
@@ -298,4 +310,21 @@ else {
     snake.changeDirection(3);
   }
 }
+}
+
+void spawnApple(){
+
+  if(apple_counter == 0){
+
+    int appleX, appleY;
+
+    do{
+    appleX = random(NUM_OF_TILES);
+    appleY = random(NUM_OF_TILES);
+    }
+    while(snake.isBodyPart(appleX,appleY)); //Generate new if apple is part of body
+
+    Apple apple(appleX,appleY);
+
+  }
 }
