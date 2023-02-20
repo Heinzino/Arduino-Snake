@@ -56,6 +56,7 @@ public:
   Apple(int startX, int startY) {
     x = startX;
     y = startY;
+    Display_Apple(x,y);
   }
 
   bool collidesWith(int otherX, int otherY) {
