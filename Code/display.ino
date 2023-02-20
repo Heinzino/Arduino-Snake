@@ -45,9 +45,9 @@ int snakeMap[NUM_OF_TILES][NUM_OF_TILES];
 int snakeX[NUM_OF_TILES];
 int snakeY[NUM_OF_TILES];
 
-int joystick_button_read = digitalRead(JOYSTICK_BUTTON_PIN);  // 1 is off 0 is on
-int joystick_x_read = analogRead(JOYSTICK_X_PIN); // 1023 is right, 0 is left
-int joystick_y_read = analogRead(JOYSTICK_Y_PIN); // 1023 is down, 0 is up
+int joystick_button_read;  // 1 is off 0 is on
+int joystick_x_read; // 1023 is right, 0 is left
+int joystick_y_read; // 1023 is down, 0 is up
 
 
 void Display_Apple(int x_tile_right, int y_tile_down);
@@ -177,6 +177,7 @@ class Snake {
 Snake snake(3,3);
 
 void setup() {
+  Serial.begin(9600);
 
   // Initalize the screen and set the orientation correctly, then make sure it's clear.
   Initialize_Screen_and_Board();
@@ -193,6 +194,7 @@ void loop(){
  Joystick_Direction();
  snake.move();
  display_snake_head();
+ delay(1000);
 }
 
 
@@ -297,10 +299,19 @@ void Initialize_Screen_and_Board(){
 }
 
 void Joystick_Direction(){
+  //Read from Joystick
+  joystick_button_read = digitalRead(JOYSTICK_BUTTON_PIN);
+  joystick_x_read = analogRead(JOYSTICK_X_PIN);
+  joystick_y_read = analogRead(JOYSTICK_Y_PIN);
+
+  int x_equilibrium = 520;
+  int y_equilibrium = 501;
+  int buffer = 15;
+
   // Determine the dominant axis of the joystick movement
-if(abs(joystick_x_read - 520) > abs(joystick_y_read - 501)) {
+if((abs(joystick_x_read - x_equilibrium) > abs(joystick_y_read - y_equilibrium)) && ((abs(joystick_x_read - x_equilibrium) - abs(joystick_y_read - y_equilibrium)) > buffer) ) {
   // Move the snake horizontally
-  if(joystick_x_read > 520) {
+  if(joystick_x_read > x_equilibrium && (joystick_x_read - x_equilibrium > buffer)) {
     // Move right
     snake.changeDirection(0);
   }
@@ -309,9 +320,9 @@ if(abs(joystick_x_read - 520) > abs(joystick_y_read - 501)) {
     snake.changeDirection(2);
   }
 }
-else {
+else if ((abs(joystick_x_read - x_equilibrium) < abs(joystick_y_read - y_equilibrium)) && ((abs(joystick_y_read - y_equilibrium) - abs(joystick_x_read - x_equilibrium)) > buffer) ) {
   // Move the snake vertically
-  if(joystick_y_read > 501) {
+  if(joystick_y_read > y_equilibrium && (joystick_y_read - y_equilibrium) > buffer) {
     // Move down
     snake.changeDirection(1);
   }
@@ -320,6 +331,11 @@ else {
     snake.changeDirection(3);
   }
 }
+else{
+  //Keep Direction
+  snake.changeDirection(snake.getDirection());
+}
+
 }
 
 void spawnApple(){
