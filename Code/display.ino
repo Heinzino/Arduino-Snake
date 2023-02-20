@@ -190,6 +190,9 @@ void setup() {
 
 void loop(){
  Serial.println("TEST");
+ Joystick_Direction();
+ snake.move();
+ display_snake_head();
 }
 
 
@@ -277,17 +280,21 @@ void Snake_Eye(){
 }
 
 
+void display_snake_head(){
+  fill_tile(snake.getHeadX(),snake.getHeadY(), MAGENTA);   
+  Snake_Eye();
+}
+
+
 void Initialize_Screen_and_Board(){
   //Makes background black
   tft.begin();
   tft.setRotation(1); //Makes starting point at top left corner of the screen when its horizontal
   tft.fillScreen(BLACK);
   createBoard();
-  fill_tile(snake.getHeadX(),snake.getHeadY(), MAGENTA);   //Starts snake at (4,4) square on board
-  Snake_Eye();
+  display_snake_head();
   Display_Score_Screen(score); //Display score of 0 
 }
-
 
 void Joystick_Direction(){
   // Determine the dominant axis of the joystick movement
