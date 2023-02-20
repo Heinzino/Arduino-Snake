@@ -83,6 +83,8 @@ class Snake {
       headY = startY;
       tailX = startX;
       tailY = startY;
+      bodyX[0] = startX;
+      bodyY[0] = startY;
       length = 1;
       direction = 0; // 0: right, 1: down, 2: left, 3: up
     }
@@ -106,21 +108,25 @@ class Snake {
       }
 
       // Update the coordinates of the tail and body segments
-      bodyX[length-1] = tailX;
-      bodyY[length-1] = tailY;
+       tailX = bodyX[0];
+       tailY = bodyY[0];
 
-      for(int i = length-1; i > 0; i--) {
-        bodyX[i-1] = bodyX[i];
-        bodyY[i-1] = bodyY[i];
-      }
+        if (length > 1) {
+          // Shift the coordinates of the body segments
+          for (int i = 1; i < length; i++) {
+            bodyX[i-1] = bodyX[i];
+            bodyY[i-1] = bodyY[i];
+          }
+        }
 
-      tailX = bodyX[0];
-      tailY = bodyY[0];
+        // Update the coordinates of the head
+        bodyX[length-1] = headX;
+        bodyY[length-1] = headY;
 
       // Check if the snake has collided with the wall or with itself
-      if(headX < 0 || headX >= NUM_OF_TILES || headY < 0 || headY >= NUM_OF_TILES) {
+      if(headX < 0 || headX >= (NUM_OF_TILES-1) || headY < 0 || headY >= (NUM_OF_TILES-1)) {
         // Collided with the wall
-        // Handle collision
+        // TODO: Handle collision
       }
       else {
         for(int i = 0; i < length; i++) {
@@ -160,6 +166,14 @@ class Snake {
     int getHeadY() {
       return headY;
     }
+    
+    int getTailX() {
+      return tailX;
+    }
+
+    int getTailY() {
+      return tailY;
+    }
 
     bool isBodyPart(int x, int y) {
       for (int i = 0; i < length; i++) {
@@ -194,9 +208,9 @@ void loop(){
  Joystick_Direction();
  snake.move();
  display_snake_head();
+ TailDisplay();
  delay(1000);
 }
-
 
 
 void createBoard() {
@@ -222,6 +236,18 @@ void fill_tile(int x_tile_right, int y_tile_down, uint32_t color){
   int y = START_Y + (y_tile_down * TILE_SIZE);
   
   tft.fillRect(x, y, TILE_SIZE, TILE_SIZE, color);
+
+}
+
+void TailDisplay(){
+  int tailX = snake.getTailX();
+  int tailY = snake.getTailY();
+  if(((tailX + tailY) % 2) == 0){ //dark tile
+    fill_tile(tailX, tailY, GRASS_DARK_GREEN);
+  }
+  else{
+    fill_tile(tailX,tailY, GRASS_LIGHT_GREEN);
+  }
 
 }
 
@@ -268,7 +294,7 @@ void Snake_Eye(){
   int pupil_radius = 3;
 
   //First eye
-  float origin_xo = START_X + (snakeX_pos * TILE_SIZE) + TILE_SIZE*0.75;
+  float origin_xo = START_X + (snakeX_pos * TILE_SIZE) + TILE_SIZE*0.5;
   float origin_yo = START_Y + ((snakeY_pos+1) * TILE_SIZE) - TILE_SIZE*0.75;
   tft.fillCircle(origin_xo, origin_yo, eye_radius, WHITE);
   tft.fillCircle(origin_xo, origin_yo, pupil_radius, BLACK);
