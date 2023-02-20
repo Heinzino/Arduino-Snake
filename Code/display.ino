@@ -211,12 +211,12 @@ void createBoard() {
 }
 
 
-void Spawn_Snake(int x_tile_right, int y_tile_down){
+void fill_tile(int x_tile_right, int y_tile_down, uint32_t color){
   //Spawns green rectangle on (x_tile_right + 1, y_tile_down + 1) square on board
-  int snake_spawn_x = START_X + (x_tile_right* TILE_SIZE);
-  int snake_spawn_y = START_Y + (y_tile_down * TILE_SIZE);
+  int x = START_X + (x_tile_right* TILE_SIZE);
+  int y = START_Y + (y_tile_down * TILE_SIZE);
   
-  tft.fillRect(snake_spawn_x, snake_spawn_y, TILE_SIZE, TILE_SIZE, MAGENTA);
+  tft.fillRect(x, y, TILE_SIZE, TILE_SIZE, color);
 
 }
 
@@ -283,7 +283,7 @@ void Initialize_Screen_and_Board(){
   tft.setRotation(1); //Makes starting point at top left corner of the screen when its horizontal
   tft.fillScreen(BLACK);
   createBoard();
-  Spawn_Snake(snake.getHeadX(),snake.getHeadY());   //Starts snake at (4,4) square on board
+  fill_tile(snake.getHeadX(),snake.getHeadY(), MAGENTA);   //Starts snake at (4,4) square on board
   Snake_Eye();
   Display_Score_Screen(score); //Display score of 0 
 }
