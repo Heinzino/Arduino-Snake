@@ -1,12 +1,12 @@
 //Libraries used
 #include <TFT_eSPI.h>
 
-// Setting the joystick pins here so we can easily change them
+//Setting the joystick pins here so we can easily change them
 #define JOYSTICK_X_PIN A7
 #define JOYSTICK_Y_PIN A6
 #define JOYSTICK_BUTTON_PIN 34
 
-// Define colours in 4-digit hex                                  
+//Define colours in 4-digit hex                                  
 #define BLACK 0x0000
 #define BLUE 0x001F
 #define RED 0xF800
@@ -63,11 +63,17 @@ void setup() {
   snakeY[NUM_OF_TILES / 2 + 1] = 8;
 
   snakeMovement();
-
-  if(snakeCollision()) {
-    tft.println("YOU LOSE LMFAO");
-    //display screen into all black or something with this on top and then have
-    //A button that they can click to restart i.e. playAgain() function
+  while(!retry.isClicked) {
+    if(snakeCollision()) {
+      tft.drawString("YOU LOSE!", middleTextX, middleTextY);
+      tft.drawString("To try again, click on the button down below and restart the game", middleTextX-START_X, middleTextY+START_Y);
+      tft.drawRect(retry.xDir, retry.yDir, retry.length, retry.width, WHITE);
+      tft.fillRect(retry.xDir, retry.yDir, retry.length, retry.width, BLUE);
+      tft.setTextColor(WHITE, BLUE);
+      tft.print(retry.label);
+      //display screen into all black or something with this on top and then have
+      //A button that they can click to restart i.e. playAgain() function
+    }
   }
 }
 
@@ -95,6 +101,21 @@ void Initialize_Screen_and_Board(){
   
 }
 
+void Display_Score_Screen(int score){
+  Display_Apple(-2,0);
+
+  String text = String(score);
+  tft.setTextSize(2);
+
+//change start position if double digit to look better
+  if(score < 10){
+    tft.drawString(text, 2*apple_radius, apple_radius+35);
+  }
+  else{
+    tft.drawString(text, apple_radius, apple_radius+35);
+  }
+}
+
 void Spawn_Snake(int x_tile_right, int y_tile_down){
   //Spawns green rectangle on (x_tile_right + 1, y_tile_down + 1) square on board
   int snake_spawn_x = START_X + (x_tile_right* TILE_SIZE);
@@ -104,21 +125,89 @@ void Spawn_Snake(int x_tile_right, int y_tile_down){
 
 }
 
-void howToPlayPage() {
+struct Button {
+  int xDir;
+  int yDir;
+  int width; 
+  int length;
+  char label[20];
+  bool isClicked;
+};
+
+//Coordinates are just test points (assumed)
+Button next = {396, 316, 50, 50, "NEXT", false};
+Button prev = {84, 316, 50, 50, "PREV", false};
+Button play = {240, 280, 100, 100, "START", false};
+Button retry = {240, 280, 100, 100, "PLAY AGAIN", false};
+
+void howToPlayPage(int pageNumber) {
+  int middleTextX = 240;
+  int middleTextY = 0;
+  //Information
+
+  if(pageNumber == 1) {
+    tft.drawRect(START_X, START_Y, BOARD_SIZE, BOARD_SIZE, RED);
+    tft.drawString("WELCOME TO SNAKE GAME!", middleTextX-START_X, middleTextY);
+    tft.drawString("Before you begin please read through these pages!", middleTextX-START_X, middleTextY+START_Y);
+    tft.drawRect(next.xDir-next.width, next.yDir-next.length, next.length, next.width, WHITE);
+    tft.fillRect(next.xDir-next.width, next.yDir-next.length, next.length, next.width, BLUE);
+    tft.setTextColor(WHITE, BLUE);
+    tft.print(next.label);
+    return;
+  }
+
+  //How to Play & Objective
+  if(pageNumber == 2) {
+    tft.drawRect(START_X, START_Y, BOARD_SIZE, BOARD_SIZE, RED);
+    tft.drawString("Using the joystick, you can move up, left, right or down", middleTextX-START_X, middleTextY);
+    tft.drawString("The objective of this game is to eat all the apples and fill our the board with the length of the snake without colliding with any parts of the border of the map, or collding into the snake itself", middleTextX-START_X, middleTextY+START_Y);
+    tft.drawString("As the game goes on, the speed of the snake and the spawn rates for the apples will increase.", middleTextX-START_X*2, middleTextY+START_Y*2);
+    tft.drawRect(prev.xDir, prev.yDir, prev.length, prev.width, WHITE);
+    tft.fillRect(prev.xDir, prev.yDir, prev.length, prev.width, BLUE);
+    tft.setTextColor(WHITE, BLUE);
+    tft.print(prev.label);
+
+    tft.drawRect(next.xDir-next.width, next.yDir-next.length, next.length, next.width, WHITE);
+    tft.fillRect(next.xDir-next.width, next.yDir-next.length, next.length, next.width, BLUE);
+    tft.setTextColor(WHITE, BLUE);
+    tft.print(next.label);
+    return;
+  }
+  
+  //To start
+  if(pageNumber == 3) {
+    tft.drawRect(START_X, START_Y, BOARD_SIZE, BOARD_SIZE, RED);
+    tft.drawString("Hope you enjoy and have fun!", middleTextX-START_X, middleTextY);
+    tft.drawString("To start the game, click Play!", middleTextX-START_X, middleTextY);
+
+    tft.drawRect(prev.xDir, prev.yDir, prev.length, prev.width, WHITE);
+    tft.fillRect(prev.xDir, prev.yDir, prev.length, prev.width, BLUE);
+    tft.setTextColor(WHITE, BLUE);
+    tft.print(prev.label);
+
+    tft.drawRect(play.xDir-play.length, play.yDir-play.width, play.length, play.width, WHITE);
+    tft.fillRect(play.xDir-play.length, play.yDir-play.width, play.length, play.width, BLUE);
+    tft.setTextColor(WHITE, YELLOW);
+    tft.print(play.label);
+    return;
+  }
+
+}
+
+void displayHowToPlayPage() {
   //Beginning of the page
   int pageNumber = 1;
   //This screen will show until the player clicks start to play the game
   while(!play.isClicked) {
     switch(pageNumber) {
       case 1:
-        tft.println("WELCOME TO SNAKE GAME!");
-        tft.println("Before you begin please read through these pages!");
+        displayHowToPlay(pageNumber);
         break;
       case 2:
-        //SHOW EVERYTHING IN PAGE 2
+        displayHowToPlay(pageNumber);
         break;
       case 3: 
-        //SHOW EVERYTHING IN PAGE 3
+        displayHowToPlay(pageNumber);
         break;
     }
     //To ensure user does not go above page 3
@@ -132,7 +221,6 @@ void howToPlayPage() {
   }
 }
 
-
 void createBoard() {
   //Board of the snake game
   //The board will go here, assuming 8x8
@@ -140,10 +228,10 @@ void createBoard() {
     for (int j = 0; j < NUM_OF_TILES; j++) {
       if(((i + j) % 2) == 0) { //Black Tile 9 
         tft.drawRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_DARK_GREEN);
-        tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_DARK_GREEN);snakeMap[i][j] = black_tile;
+        tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_DARK_GREEN);
       } else { //White Tile 10
         tft.drawRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_LIGHT_GREEN);
-        tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_LIGHT_GREEN);snakeMap[i][j] = white_tile;
+        tft.fillRect(TILE_SIZE*i + START_X, TILE_SIZE*j + START_Y, TILE_SIZE, TILE_SIZE, GRASS_LIGHT_GREEN);
       }
     }
   }
@@ -182,21 +270,6 @@ void Display_Apple(int x_tile_right, int y_tile_down){
   tft.drawLine(leaf_xo, leaf_yo, leaf_x+1, leaf_y+1, DARK_GREEN);
   tft.drawLine(leaf_xo, leaf_yo, leaf_x-2, leaf_y-2, DARK_GREEN);
  
-}
-
-void Display_Score_Screen(int score){
-  Display_Apple(-2,0);
-
-  String text = String(score);
-  tft.setTextSize(2);
-
-//change start position if double digit to look better
-  if(score < 10){
-  tft.drawString(text, 2*apple_radius, apple_radius+35);
-  }
-  else{
-    tft.drawString(text, apple_radius, apple_radius+35);
-  }
 }
 
 void snakeMovement() {
