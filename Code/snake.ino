@@ -45,6 +45,20 @@ int snakeMap[NUM_OF_TILES][NUM_OF_TILES];
 int snakeX[NUM_OF_TILES];
 int snakeY[NUM_OF_TILES];
 
+struct Button {
+  int xDir;
+  int yDir;
+  int width; 
+  int length;
+  char label[20];
+  bool isClicked;
+};
+
+//Coordinates are just test points (assumed)
+Button next = {396, 316, 50, 50, "NEXT", false};
+Button prev = {84, 316, 50, 50, "PREV", false};
+Button play = {240, 280, 100, 100, "START", false};
+Button retry = {240, 280, 100, 100, "PLAY AGAIN", false};
 
 void setup() {
   Serial.begin(9600);
@@ -55,7 +69,7 @@ void setup() {
   digitalWrite(JOYSTICK_BUTTON_PIN, HIGH);
   
   //Starts of page
-  howToPlayPage();
+  displayHowToPlayPage();
   //Start position of snake middle of board
   snakeX[NUM_OF_TILES / 2] = 8; //Snake Head
   snakeY[NUM_OF_TILES / 2 - 1] = 8;
@@ -65,8 +79,8 @@ void setup() {
   snakeMovement();
   while(!retry.isClicked) {
     if(snakeCollision()) {
-      tft.drawString("YOU LOSE!", middleTextX, middleTextY);
-      tft.drawString("To try again, click on the button down below and restart the game", middleTextX-START_X, middleTextY+START_Y);
+      tft.drawString("YOU LOSE!", START_X*4, START_Y);
+      tft.drawString("To try again, click on the button down below and restart the game", START_X*4, START_Y*2);
       tft.drawRect(retry.xDir, retry.yDir, retry.length, retry.width, WHITE);
       tft.fillRect(retry.xDir, retry.yDir, retry.length, retry.width, BLUE);
       tft.setTextColor(WHITE, BLUE);
@@ -125,20 +139,7 @@ void Spawn_Snake(int x_tile_right, int y_tile_down){
 
 }
 
-struct Button {
-  int xDir;
-  int yDir;
-  int width; 
-  int length;
-  char label[20];
-  bool isClicked;
-};
 
-//Coordinates are just test points (assumed)
-Button next = {396, 316, 50, 50, "NEXT", false};
-Button prev = {84, 316, 50, 50, "PREV", false};
-Button play = {240, 280, 100, 100, "START", false};
-Button retry = {240, 280, 100, 100, "PLAY AGAIN", false};
 
 void howToPlayPage(int pageNumber) {
   int middleTextX = 240;
@@ -201,13 +202,13 @@ void displayHowToPlayPage() {
   while(!play.isClicked) {
     switch(pageNumber) {
       case 1:
-        displayHowToPlay(pageNumber);
+        howToPlayPage(pageNumber);
         break;
       case 2:
-        displayHowToPlay(pageNumber);
+        howToPlayPage(pageNumber);
         break;
       case 3: 
-        displayHowToPlay(pageNumber);
+        howToPlayPage(pageNumber);
         break;
     }
     //To ensure user does not go above page 3
