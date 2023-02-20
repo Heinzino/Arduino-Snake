@@ -204,7 +204,9 @@ void loop(){
  snake.move();
  display_snake_head();
  TailDisplay();
- spawnApple();
+ Apple apple = spawnApple();
+ eatingApple(apple);
+ Display_Score_Screen(score);
  delay(1000);
 }
 
@@ -267,7 +269,6 @@ void Display_Apple(int x_tile_right, int y_tile_down){
 }
 
 void Display_Score_Screen(int score){
-  Display_Apple(-2,0);
 
   String text = String(score);
   tft.setTextSize(2);
@@ -317,7 +318,9 @@ void Initialize_Screen_and_Board(){
   tft.fillScreen(BLACK);
   createBoard();
   display_snake_head();
+
   Display_Score_Screen(score); //Display score of 0 
+  Display_Apple(-2,0); //Part of Score_Screen
 }
 
 void Joystick_Direction(){
@@ -360,8 +363,7 @@ else{
 
 }
 
-void spawnApple(){
-
+Apple spawnApple(){
   if(apple_counter == 0){
 
     long appleX, appleY;
@@ -373,8 +375,15 @@ void spawnApple(){
     while(snake.isBodyPart(appleX,appleY)); //Generate new if apple is part of body
 
     apple_counter++;
-    Apple apple(appleX,appleY);
+    return Apple(appleX,appleY);
 
   }
 }
 
+void eatingApple(Apple& apple){
+  if(apple.collidesWith(snake.getHeadX(), snake.getHeadY())){
+    apple_counter--;
+    score++;
+    snake.increaseLength();
+  }
+}
