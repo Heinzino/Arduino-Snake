@@ -48,6 +48,20 @@ int joystick_button_read = digitalRead(JOYSTICK_BUTTON_PIN);  // 1 is off 0 is o
 int joystick_x_read = analogRead(JOYSTICK_X_PIN); // 1023 is right, 0 is left
 int joystick_y_read = analogRead(JOYSTICK_Y_PIN); // 1023 is down, 0 is up
 
+class Apple {
+public:
+  int x, y;
+
+  Apple(int startX, int startY) {
+    x = startX;
+    y = startY;
+  }
+
+  bool collidesWith(int otherX, int otherY) {
+    return (x == otherX && y == otherY);
+  }
+};
+
 
 class Snake {
   private:
