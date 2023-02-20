@@ -50,7 +50,7 @@ int joystick_x_read = analogRead(JOYSTICK_X_PIN); // 1023 is right, 0 is left
 int joystick_y_read = analogRead(JOYSTICK_Y_PIN); // 1023 is down, 0 is up
 
 
-void Display_Apple();
+void Display_Apple(int x_tile_right, int y_tile_down);
 class Apple {
 public:
   int x, y;
