@@ -365,7 +365,7 @@ bool playAgain() {
   return false;
 }
 
-bool winCondition() {
+bool winCondition(int &score) {
   //Checks score to compare with map of board to see if user won
   if (score == (5 * NUM_OF_TILES * NUM_OF_TILES)) {
     return true;
