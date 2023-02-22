@@ -86,6 +86,11 @@ class Snake {
       headY = startY;
       tailX = startX;
       tailY = startY;
+
+      for(int i =0; i<(NUM_OF_TILES*NUM_OF_TILES-1);i++){
+        bodyY[i] = -3; //Initialize out of screen so body doesn't bug 
+      }
+
       bodyX[0] = startX;
       bodyY[0] = startY;
       length = 1;
@@ -189,12 +194,11 @@ class Snake {
 
   void reset(){
 
-    //reset body list
+     //reset body list
     for(int i = 0; i<length; i++){
-      bodyX[i] = -1; //out of screen
-      bodyY[i] = -1;
+      bodyY[i] = -3; //out of screen
     }
-
+  
     //reset variables 
     headX = snake_start_x;
     headY = snake_start_y;
