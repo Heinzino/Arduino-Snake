@@ -36,6 +36,7 @@ uint32_t snake_colour = MAGENTA;
 
 int score = 0;
 int high_score = 0;
+bool new_high_score = false;
 int apple_counter = 0;
 int snake_start_x = 3;
 int snake_start_y = 3; //snake starts at (4,4) square
@@ -414,7 +415,7 @@ void eatingApple(Apple& apple){
   }
 }
 
-void highscore_screen(){
+void highscore_screen(bool new_high_score){
 
   //Icons
     Display_Apple(2,3);
@@ -443,6 +444,13 @@ void highscore_screen(){
 
     tft.drawString(String(score),170,162);
     tft.drawString(String(high_score), 280, 162);
+
+     if(new_high_score){
+      tft.setTextColor(BLUE);
+      tft.setTextSize(2);
+      tft.drawString("NEW HIGH SCORE",155, 200);
+    }
+
 }
 
 void lose_game_handle(){
@@ -450,15 +458,17 @@ void lose_game_handle(){
   tft.fillScreen(BLACK);
   if(high_score < score){
     high_score = score;
+    new_high_score = true;
   }
 
   while(joystick_button_read == 1){ //joystick not pressed
-      highscore_screen();
+      highscore_screen(new_high_score);
       joystick_button_read = digitalRead(JOYSTICK_BUTTON_PIN);
   }
 
   //Restart game if joystick pressed
   snake.reset();
   score = 0;
+  new_high_score = false;
   Initialize_Screen_and_Board();
 }
