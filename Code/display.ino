@@ -434,6 +434,12 @@ void highscore_screen(bool new_high_score){
 
 
   //Text
+    if(new_high_score){
+      tft.setTextColor(BLUE);
+      tft.setTextSize(2);
+      tft.drawString("NEW HIGH SCORE",155, 200);
+    }
+
     tft.setTextSize(6);
     tft.setTextColor(GREEN);
     tft.drawString("COBRA", 155, 10);
@@ -444,13 +450,6 @@ void highscore_screen(bool new_high_score){
 
     tft.drawString(String(score),170,162);
     tft.drawString(String(high_score), 280, 162);
-
-     if(new_high_score){
-      tft.setTextColor(BLUE);
-      tft.setTextSize(2);
-      tft.drawString("NEW HIGH SCORE",155, 200);
-    }
-
 }
 
 void lose_game_handle(){
