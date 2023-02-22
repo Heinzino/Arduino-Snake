@@ -35,6 +35,8 @@ const int black_tile = 9;
 
 int score = 0;
 int apple_counter = 0;
+int snake_start_x = 3;
+int snake_start_y = 3; //snake starts at (4,4) square
 
 int snakeMap[NUM_OF_TILES][NUM_OF_TILES];
 int snakeX[NUM_OF_TILES];
@@ -46,6 +48,7 @@ int joystick_y_read; // 1023 is down, 0 is up
 
 
 void Display_Apple(int x_tile_right, int y_tile_down);
+void lose_game_handle();
 class Apple {
 public:
   int x, y;
@@ -119,15 +122,13 @@ class Snake {
         bodyY[length-1] = headY;
 
       // Check if the snake has collided with the wall or with itself
-      if(headX < 0 || headX >= (NUM_OF_TILES-1) || headY < 0 || headY >= (NUM_OF_TILES-1)) {
-        // Collided with the wall
-        // TODO: Handle collision
+      if(headX < 0 || headX >= (NUM_OF_TILES) || headY < 0 || headY >= (NUM_OF_TILES)) {
+        lose_game_handle();
       }
-      else {
+      else if (length > 1){
         for(int i = 0; i < length; i++) {
           if(headX == bodyX[i] && headY == bodyY[i]) {
             // Collided with itself
-            // Handle collision
             break;
           }
         }
@@ -179,11 +180,31 @@ class Snake {
     return false;
   }
 
+  void reset(){
+
+    //reset body list
+    for(int i = 0; i<length; i++){
+      bodyX[i] = -1; //out of screen
+      bodyY[i] = -1;
+    }
+
+    //reset variables 
+    headX = snake_start_x;
+    headY = snake_start_y;
+    tailX = snake_start_x;
+    tailY = snake_start_y;
+    bodyX[0] = snake_start_x;
+    bodyY[0] = snake_start_y;
+    length = 1;
+    direction = 0;
+
+  }
+
     
 };
 
 //Snake starts at (4,4) square
-Snake snake(3,3);
+Snake snake(snake_start_x,snake_start_y);
 
 void setup() {
   Serial.begin(9600);
@@ -386,4 +407,20 @@ void eatingApple(Apple& apple){
     score++;
     snake.increaseLength();
   }
+}
+
+void lose_game_handle(){
+
+  String text1 ="Press Joystick";
+  String text2 = "to play again";
+  while(joystick_button_read == 1){ //joystick not pressed
+      tft.drawString(text1, 240, 160, BLACK);
+      tft.drawString(text2, 240, 190, BLACK);
+      joystick_button_read = digitalRead(JOYSTICK_BUTTON_PIN);
+  }
+
+  //Restart game if joystick pressed
+  snake.reset();
+  score = 0;
+  Initialize_Screen_and_Board();
 }
