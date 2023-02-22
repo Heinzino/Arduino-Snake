@@ -135,7 +135,7 @@ void Spawn_Snake(int x_tile_right, int y_tile_down){
   int snake_spawn_x = START_X + (x_tile_right* TILE_SIZE);
   int snake_spawn_y = START_Y + (y_tile_down * TILE_SIZE);
   
-  tft.fillRect(snake_spawn_x, snake_spawn_y, TILE_SIZE, TILE_SIZE, MAGENTA);
+  tft.fillRect(snake_spawn_x, snake_spawn_y, TILE_SIZE, TILE_SIZE, snake_colour);
 
 }
 

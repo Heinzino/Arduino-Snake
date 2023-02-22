@@ -32,6 +32,7 @@ const int apple_radius = TILE_SIZE/3.0;
 
 const int white_tile = 10;
 const int black_tile = 9;
+uint32_t snake_colour = MAGENTA;
 
 int score = 0;
 int apple_counter = 0;
@@ -49,6 +50,8 @@ int joystick_y_read; // 1023 is down, 0 is up
 
 void Display_Apple(int x_tile_right, int y_tile_down);
 void lose_game_handle();
+void fill_tile(int x_tile_right, int y_tile_down, uint32_t colour);
+
 class Apple {
 public:
   int x, y;
@@ -114,6 +117,8 @@ class Snake {
           for (int i = 1; i < length; i++) {
             bodyX[i-1] = bodyX[i];
             bodyY[i-1] = bodyY[i];
+            //Update body display
+            fill_tile(bodyX[i], bodyY[i], snake_colour);
           }
         }
 
@@ -327,7 +332,7 @@ void Snake_Eye(){
 
 
 void display_snake_head(){
-  fill_tile(snake.getHeadX(),snake.getHeadY(), MAGENTA);   
+  fill_tile(snake.getHeadX(),snake.getHeadY(), snake_colour);   
   Snake_Eye();
 }
 
