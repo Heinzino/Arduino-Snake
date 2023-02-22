@@ -35,6 +35,7 @@ const int black_tile = 9;
 uint32_t snake_colour = MAGENTA;
 
 int score = 0;
+int high_score = 0;
 int apple_counter = 0;
 int snake_start_x = 3;
 int snake_start_y = 3; //snake starts at (4,4) square
@@ -345,7 +346,6 @@ void Initialize_Screen_and_Board(){
   createBoard();
   display_snake_head();
 
-  Display_Score_Screen(score); //Display score of 0 
   Display_Apple(-2,0); //Part of Score_Screen
 }
 
@@ -414,13 +414,46 @@ void eatingApple(Apple& apple){
   }
 }
 
+void highscore_screen(){
+
+  //Icons
+    Display_Apple(2,3);
+    
+    //Star
+    tft.drawLine(280,155,290,130,YELLOW);
+    tft.drawLine(290,130,300,155,YELLOW);
+    tft.drawLine(300,155, 275, 140, YELLOW);
+    tft.drawLine(275,140, 305, 140, YELLOW);
+    tft.drawLine(305,140,280,155,YELLOW);
+
+    //Eye
+    tft.fillCircle(155+50, 10+20, 7, WHITE);
+    tft.fillCircle(155+50, 10+20, 4, BLACK);
+    
+
+
+  //Text
+    tft.setTextSize(6);
+    tft.setTextColor(GREEN);
+    tft.drawString("COBRA", 155, 10);
+
+    tft.setTextSize(2);
+    tft.setTextColor(WHITE);
+    tft.drawString("Push joystick to play again", 82, 290);
+
+    tft.drawString(String(score),170,162);
+    tft.drawString(String(high_score), 280, 162);
+}
+
 void lose_game_handle(){
 
-  String text1 ="Press Joystick";
-  String text2 = "to play again";
+  tft.fillScreen(BLACK);
+  if(high_score < score){
+    high_score = score;
+  }
+
   while(joystick_button_read == 1){ //joystick not pressed
-      tft.drawString(text1, 240, 160, BLACK);
-      tft.drawString(text2, 240, 190, BLACK);
+      highscore_screen();
       joystick_button_read = digitalRead(JOYSTICK_BUTTON_PIN);
   }
 
