@@ -114,15 +114,15 @@ class Snake {
        tailX = bodyX[0];
        tailY = bodyY[0];
 
-        if (length > 1) {
-          // Shift the coordinates of the body segments
-          for (int i = 1; i < length; i++) {
-            bodyX[i-1] = bodyX[i];
-            bodyY[i-1] = bodyY[i];
-            //Update body display
-            fill_tile(bodyX[i], bodyY[i], snake_colour);
-          }
+    
+        // Shift the coordinates of the body segments
+        for (int i = 1; i < length; i++) {
+          bodyX[i-1] = bodyX[i];
+          bodyY[i-1] = bodyY[i];
+          //Update body display
+          fill_tile(bodyX[i], bodyY[i], snake_colour);
         }
+  
 
         // Update the coordinates of the head
         bodyX[length-1] = headX;
