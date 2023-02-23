@@ -14,6 +14,8 @@ TFT_eSPI tft = TFT_eSPI();
 #define RED 0xF800
 #define GREEN 0x07E0
 #define CYAN 0x07FF
+#define ORANGE 0xF4C6
+#define PURPLE 0x78F6
 #define MAGENTA 0xF81F
 #define YELLOW 0xFFE0
 #define WHITE 0xFFFF
@@ -419,6 +421,11 @@ void eatingApple(Apple& apple){
   }
 }
 
+
+bool winCondition() {
+  return (score == (NUM_OF_TILES*NUM_OF_TILES)-1);
+}
+
 void highscore_screen(bool new_high_score){
 
   //Icons
@@ -434,14 +441,28 @@ void highscore_screen(bool new_high_score){
     //Eye
     tft.fillCircle(155+50, 10+20, 7, WHITE);
     tft.fillCircle(155+50, 10+20, 4, BLACK);
-    
-
 
   //Text
-    if(new_high_score){
+   if(new_high_score){
       tft.setTextColor(BLUE);
       tft.setTextSize(2);
       tft.drawString("NEW HIGH SCORE",155, 200);
+    }
+
+    if(winCondition()){
+      tft.setTextSize(4);
+      tft.setTextColor(RED);
+      tft.drawString("Y",10,110);
+      tft.setTextColor(ORANGE);
+      tft.drawString("O",10,145);
+      tft.setTextColor(YELLOW);
+      tft.drawString("U",10,180);
+      tft.setTextColor(GREEN);
+      tft.drawString("W",450,110);
+      tft.setTextColor(BLUE);
+      tft.drawString("I",450,145);
+      tft.setTextColor(PURPLE);
+      tft.drawString("N",450,180);
     }
 
     tft.setTextSize(6);
@@ -454,7 +475,14 @@ void highscore_screen(bool new_high_score){
 
     tft.drawString(String(score),170,162);
     tft.drawString(String(high_score), 280, 162);
+
+    tft.drawRect(75,285,58,25,WHITE);
+    delay(250);
+    tft.drawRect(75,285,58,25,BLUE);
+
 }
+
+
 
 void lose_game_handle(){
 
