@@ -239,6 +239,7 @@ void loop(){
  display_snake_head();
  TailDisplay();
  Apple apple = spawnApple();
+ play_music();
  eatingApple(apple);
  Display_Score_Screen(score);
  delay(1000);
