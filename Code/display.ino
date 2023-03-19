@@ -233,7 +233,6 @@ void setup() {
 }
 
 void loop(){
- Serial.println("TEST");
  Joystick_Direction();
  snake.move();
  display_snake_head();
@@ -303,7 +302,7 @@ void Display_Apple(int x_tile_right, int y_tile_down){
 }
 
 void Display_Score_Screen(int score){
-
+  Display_Apple(-2,0); //Part of Score_Screen
   String text = String(score);
   tft.setTextSize(2);
 
@@ -351,9 +350,6 @@ void Initialize_Screen_and_Board(){
   tft.setRotation(1); //Makes starting point at top left corner of the screen when its horizontal
   tft.fillScreen(BLACK);
   createBoard();
-  display_snake_head();
-
-  Display_Apple(-2,0); //Part of Score_Screen
 }
 
 void Joystick_Direction(){
