@@ -1,6 +1,8 @@
 //Inspired from Arduino songs by Robson Couto
 // https://github.com/robsoncouto/arduino-songs/blob/master/gameofthrones/gameofthrones.ino 
 
+#include <stdlib.h>
+#include <Arduino.h>
 
 #define NOTE_C3  131
 #define NOTE_CS3 139
@@ -46,6 +48,7 @@ int tempo = 140;
 
 // change this to whichever pin you want to use
 int buzzer = 11;
+int fx_buzzer = 12;
 
 // notes of the moledy followed by the duration.
 // a 4 means a quarter note, 8 an eighteenth , 16 sixteenth, so on
@@ -123,4 +126,32 @@ void play_music() {
     // stop the waveform generation before the next note.
     noTone(buzzer);
   }
+}
+
+
+void lose_sound(){
+  tone(fx_buzzer, NOTE_E3, 4*0.9);
+  delay(4);
+
+  
+  tone(fx_buzzer, NOTE_D3, 4*0.9);
+  delay(4);
+
+  tone(fx_buzzer, NOTE_C3, 1*0.9);
+  delay(1);
+}
+
+void apple_sound(){
+  // play a tone for a short duration
+  tone(fx_buzzer, 1000, 50);
+  delay(50);
+  
+  // play a lower tone for a slightly longer duration
+  tone(fx_buzzer, 800, 100);
+  delay(100);
+  
+  // play a higher tone for a short duration
+  tone(fx_buzzer, 1200, 50);
+  delay(50);
+  
 }

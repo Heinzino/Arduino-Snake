@@ -1,4 +1,5 @@
 #include <TFT_eSPI.h>
+#include <C:\Users\HeinzV\Desktop\repo\GabeItches\Code\display\music.ino>
 
 //create the screen variable from the library
 TFT_eSPI tft = TFT_eSPI();
@@ -229,6 +230,10 @@ void setup() {
   pinMode(JOYSTICK_BUTTON_PIN, INPUT);
   digitalWrite(JOYSTICK_BUTTON_PIN, HIGH);
 
+  //Intitialze Buzzers
+  pinMode(buzzer, OUTPUT);
+  pinMode(fx_buzzer, OUTPUT);
+
 
 }
 
@@ -412,6 +417,7 @@ Apple spawnApple(){
 
 void eatingApple(Apple& apple){
   if(apple.collidesWith(snake.getHeadX(), snake.getHeadY())){
+    apple_sound();
     apple_counter--;
     score++;
     snake.increaseLength();
@@ -441,33 +447,33 @@ void highscore_screen(bool new_high_score){
 
   //Text
    if(new_high_score){
-      tft.setTextColor(BLUE);
+      tft.setTextColor(BLUE,BLACK);
       tft.setTextSize(2);
       tft.drawString("NEW HIGH SCORE",155, 200);
     }
 
     if(winCondition()){
       tft.setTextSize(4);
-      tft.setTextColor(RED);
+      tft.setTextColor(RED,BLACK);
       tft.drawString("Y",10,110);
-      tft.setTextColor(ORANGE);
+      tft.setTextColor(ORANGE,BLACK);
       tft.drawString("O",10,145);
-      tft.setTextColor(YELLOW);
+      tft.setTextColor(YELLOW,BLACK);
       tft.drawString("U",10,180);
-      tft.setTextColor(GREEN);
+      tft.setTextColor(GREEN,BLACK);
       tft.drawString("W",450,110);
-      tft.setTextColor(BLUE);
+      tft.setTextColor(BLUE,BLACK);
       tft.drawString("I",450,145);
-      tft.setTextColor(PURPLE);
+      tft.setTextColor(PURPLE,BLACK);
       tft.drawString("N",450,180);
     }
 
     tft.setTextSize(6);
-    tft.setTextColor(GREEN);
+    tft.setTextColor(GREEN,BLACK);
     tft.drawString("COBRA", 155, 10);
 
     tft.setTextSize(2);
-    tft.setTextColor(WHITE);
+    tft.setTextColor(WHITE,BLACK);
     tft.drawString("Push joystick to play again", 82, 290);
 
     tft.drawString(String(score),170,162);
@@ -483,6 +489,7 @@ void highscore_screen(bool new_high_score){
 
 void lose_game_handle(){
 
+  lose_sound();
   tft.fillScreen(BLACK);
   if(high_score < score){
     high_score = score;
