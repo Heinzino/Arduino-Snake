@@ -147,6 +147,9 @@ int play_note(int current_note){
 
     // stop the waveform generation before the next note.
     noTone(buzzer);
+     if(current_note == 208){ //208 number of notes indicates end of song
+      current_note = 0;
+    }
     return (current_note+2);
 }
 
