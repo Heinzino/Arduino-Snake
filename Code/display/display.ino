@@ -1,5 +1,4 @@
 #include <TFT_eSPI.h>
-#include <C:\Users\HeinzV\Desktop\repo\GabeItches\Code\display\music.ino>
 
 //create the screen variable from the library
 TFT_eSPI tft = TFT_eSPI();
@@ -52,6 +51,11 @@ int joystick_button_read;  // 1 is off 0 is on
 int joystick_x_read; // 1023 is right, 0 is left
 int joystick_y_read; // 1023 is down, 0 is up
 
+int buzzer = 11;
+int fx_buzzer = 12;
+
+int game_delay = 300;
+int current_note = 0;
 
 void Display_Apple(int x_tile_right, int y_tile_down);
 void lose_game_handle();
@@ -241,12 +245,14 @@ void loop(){
  Joystick_Direction();
  snake.move();
  display_snake_head();
+
+ //Apple issue here
  TailDisplay();
  Apple apple = spawnApple();
- play_music();
+ 
  eatingApple(apple);
  Display_Score_Screen(score);
- delay(1000);
+ current_note = play_note(current_note);
 }
 
 

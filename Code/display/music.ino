@@ -47,8 +47,7 @@
 int tempo = 140;
 
 // change this to whichever pin you want to use
-int buzzer = 11;
-int fx_buzzer = 12;
+
 
 // notes of the moledy followed by the duration.
 // a 4 means a quarter note, 8 an eighteenth , 16 sixteenth, so on
@@ -128,6 +127,28 @@ void play_music() {
   }
 }
 
+int play_note(int current_note){
+
+    divider = melody[current_note + 1];
+    if (divider > 0) {
+      // regular note, just proceed
+      noteDuration = (wholenote) / divider;
+    } else if (divider < 0) {
+      // dotted notes are represented with negative durations!!
+      noteDuration = (wholenote) / abs(divider);
+      noteDuration *= 1.5; // increases the duration in half for dotted notes
+    }
+
+    // we only play the note for 90% of the duration, leaving 10% as a pause
+    tone(buzzer, melody[current_note], noteDuration * 0.9);
+
+    // Wait for the specief duration before playing the next note.
+    delay(noteDuration);
+
+    // stop the waveform generation before the next note.
+    noTone(buzzer);
+    return (current_note+2);
+}
 
 void lose_sound(){
   tone(fx_buzzer, NOTE_E3, 4*0.9);
