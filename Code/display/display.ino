@@ -56,6 +56,7 @@ int fx_buzzer = 12;
 
 int game_delay = 300;
 int current_note = 0;
+bool game_on = false;
 
 void Display_Apple(int x_tile_right, int y_tile_down);
 void lose_game_handle();
@@ -362,6 +363,7 @@ void Initialize_Screen_and_Board(){
   tft.setRotation(1); //Makes starting point at top left corner of the screen when its horizontal
   tft.fillScreen(BLACK);
   createBoard();
+  game_on = true;
 }
 
 void Joystick_Direction(){
@@ -495,7 +497,12 @@ void highscore_screen(bool new_high_score){
 
 void lose_game_handle(){
 
+  if(game_on){
   lose_sound();
+  delay(650);
+  game_on = false;
+  noTone(fx_buzzer);
+  }
   tft.fillScreen(BLACK);
   if(high_score < score){
     high_score = score;
