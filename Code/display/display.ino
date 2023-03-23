@@ -111,6 +111,7 @@ class Snake {
       switch(direction) {
         case 0: // right
           headX++;
+          //nextX
           break;
         case 1: // down
           headY++;
@@ -147,7 +148,7 @@ class Snake {
       }
       else if (length > 1){
         for(int i = 0; i < length; i++) {
-          if(headX == bodyX[i] && headY == bodyY[i]) {
+          if((headX == bodyX[i] && headY == bodyY[i])) {
             // Collided with itself
             break;
           }
@@ -250,7 +251,7 @@ void loop(){
  //Apple issue here
  TailDisplay();
  Apple apple = spawnApple();
- 
+
  eatingApple(apple);
  Display_Score_Screen(score);
  current_note = play_note(current_note);
@@ -452,6 +453,7 @@ void highscore_screen(bool new_high_score){
     //Eye
     tft.fillCircle(155+50, 10+20, 7, WHITE);
     tft.fillCircle(155+50, 10+20, 4, BLACK);
+    
 
   //Text
    if(new_high_score){
@@ -518,5 +520,6 @@ void lose_game_handle(){
   snake.reset();
   score = 0;
   new_high_score = false;
+  apple_counter = 0;
   Initialize_Screen_and_Board();
 }
