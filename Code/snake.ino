@@ -139,8 +139,6 @@ void Spawn_Snake(int x_tile_right, int y_tile_down){
 
 }
 
-
-
 void howToPlayPage(int pageNumber) {
   int middleTextX = 240;
   int middleTextY = 0;
@@ -353,7 +351,6 @@ void appleSpawn(int time) {
   }
 }
 
-
 //Do i even need this since there will be a button for this?
 bool playAgain() {
   if(retry.isClicked) {
@@ -374,3 +371,5 @@ bool winCondition(int &score) {
     return false;
   }
 }
+
+void displayStrings ()
