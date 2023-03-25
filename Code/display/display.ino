@@ -58,6 +58,9 @@ int game_delay = 300;
 int current_note = 0;
 bool game_on = false;
 
+unsigned long time = millis();
+unsigned long oldTime = 0;
+
 void Display_Apple(int x_tile_right, int y_tile_down);
 void lose_game_handle();
 void fill_tile(int x_tile_right, int y_tile_down, uint32_t colour);
@@ -95,7 +98,6 @@ class Snake {
       tailX = startX;
       tailY = startY;
 
-      //make this into -1 instead of -3?
       for(int i =0; i<(NUM_OF_TILES*NUM_OF_TILES-1);i++){
         bodyY[i] = -3; //Initialize out of screen so body doesn't bug 
       }
@@ -169,8 +171,7 @@ class Snake {
           // Collided with itself (because of the way we have the snake grow after eating an apple,
           // We have to check if it also collides with the apple to ensure that it doesnt check
           // doesnt check if the body collides with itself after eating the apple since its always true)
-          if((headX == bodyX[i] && headY == bodyY[i]) && (!apple.collidesWith(snake.getHeadX(), snake.getHeadY()))) {
-            lose_game_handle();
+          if((headX == bodyX[i] && headY == bodyY[i])) {
             break;
           }
         }
@@ -274,7 +275,11 @@ void loop(){
 
  eatingApple(apple);
  Display_Score_Screen(score);
- current_note = play_note(current_note);
+
+ time = millis();
+ updateSong();
+ 
+ delay(140);
 }
 
 
@@ -294,7 +299,6 @@ void createBoard() {
   }
 }
 
-//Since all of our code is 0-indexed, this should also be 0-indexed
 void fill_tile(int x_tile_right, int y_tile_down, uint32_t color){
   //Spawns green rectangle on (x_tile_right + 1, y_tile_down + 1) square on board
   int x = START_X + (x_tile_right* TILE_SIZE);
@@ -510,7 +514,7 @@ void highscore_screen(bool new_high_score){
     tft.drawString(String(high_score), 280, 162);
 
     tft.drawRect(75,285,58,25,WHITE);
-    delay(250);
+    delay(100);
     tft.drawRect(75,285,58,25,BLUE);
 
 }
@@ -541,7 +545,6 @@ void lose_game_handle(){
   snake.reset();
   score = 0;
   new_high_score = false;
-  //Ensures apple displays when the game restarts since the apple object is still there from the previous round
   apple_counter = 0;
   Initialize_Screen_and_Board();
 }

@@ -44,7 +44,7 @@
 
 
 // change this to make the song slower or faster
-int tempo = 140;
+int tempo = 160;
 
 // change this to whichever pin you want to use
 
@@ -99,6 +99,7 @@ int notes = sizeof(melody) / sizeof(melody[0]) / 2;
 int wholenote = (60000 * 4) / tempo;
 
 int divider = 0, noteDuration = 0;
+int songLength = 210;
 
 void play_music() {
   // iterate over the notes of the melody.
@@ -178,4 +179,29 @@ void apple_sound(){
   tone(fx_buzzer, 1200, 50);
   delay(50);
   
+}
+
+unsigned long lastNote = 0;
+int currentNote = 0;
+
+void updateSong() {
+  if ((time - lastNote) >= noteDuration) {  // every note duration
+    lastNote = time;
+
+    divider = melody[currentNote + 1];  // gets type of note (quarter , eighth, etc)
+    if (divider > 0) {                  // for normal notes
+      noteDuration = (wholenote) / divider;
+    } else if (divider < 0) {  // for dotted notes
+      noteDuration = (wholenote) / abs(divider);
+      noteDuration *= 1.5;
+    }
+
+    tone(buzzer, melody[currentNote], noteDuration * 0.9);
+
+    // increment to next note
+    currentNote += 2;
+    if (currentNote >= songLength) { // reset currentNote at end of song
+      currentNote = 0;
+    }
+  }
 }
