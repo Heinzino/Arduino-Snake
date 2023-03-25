@@ -69,7 +69,7 @@ public:
   Apple(int startX, int startY) {
     x = startX;
     y = startY;
-    Display_Apple(x,y);
+    Display_Apple(x,y); //This should be elsewhere
   }
 
   bool collidesWith(int otherX, int otherY) {
@@ -95,6 +95,7 @@ class Snake {
       tailX = startX;
       tailY = startY;
 
+      //make this into -1 instead of -3?
       for(int i =0; i<(NUM_OF_TILES*NUM_OF_TILES-1);i++){
         bodyY[i] = -3; //Initialize out of screen so body doesn't bug 
       }
@@ -111,6 +112,7 @@ class Snake {
       switch(direction) {
         case 0: // right
           headX++;
+          //nextX
           break;
         case 1: // down
           headY++;
@@ -127,7 +129,8 @@ class Snake {
        tailX = bodyX[0];
        tailY = bodyY[0];
 
-    
+        //Below can be changed to keep track of only head and tail an shift body according to that
+        //Instead of iterating over the whole body every single time we move
         // Shift the coordinates of the body segments
         for (int i = 1; i < length; i++) {
           bodyX[i-1] = bodyX[i];
@@ -141,14 +144,33 @@ class Snake {
         bodyX[length-1] = headX;
         bodyY[length-1] = headY;
 
-      // Check if the snake has collided with the wall or with itself
+      // Check if the snake has collided with the wall
       if(headX < 0 || headX >= (NUM_OF_TILES) || headY < 0 || headY >= (NUM_OF_TILES)) {
         lose_game_handle();
       }
       else if (length > 1){
+        //I think we can move this whole part into eatApple and check it there, that way it can check if its
+        //eaten an apple or eaten (collided with) itself, and then return a true or false so that we can determine
+        //if the player lost the game since it hit itself or to keep going cause it ate an apple
+        //Something like this in the eatApple section: 
+        /*if (head.x == apple.x && head.y == apple.y) {
+            grow();
+            return true;
+          } else {
+            for (int i = 1; i < length; i++) {
+              if (body[i].x == head.x && body[i].y == head.y) {
+                return true;
+              }
+            }
+          }*/
+        //Then we can remove this part of the code here since it would be redundant, but first test the below
+        //code before trying to implement this
         for(int i = 0; i < length; i++) {
-          if(headX == bodyX[i] && headY == bodyY[i]) {
-            // Collided with itself
+          // Collided with itself (because of the way we have the snake grow after eating an apple,
+          // We have to check if it also collides with the apple to ensure that it doesnt check
+          // doesnt check if the body collides with itself after eating the apple since its always true)
+          if((headX == bodyX[i] && headY == bodyY[i]) && (!apple.collidesWith(snake.getHeadX(), snake.getHeadY()))) {
+            lose_game_handle();
             break;
           }
         }
@@ -247,10 +269,9 @@ void loop(){
  snake.move();
  display_snake_head();
 
- //Apple issue here
  TailDisplay();
  Apple apple = spawnApple();
- 
+
  eatingApple(apple);
  Display_Score_Screen(score);
  current_note = play_note(current_note);
@@ -273,7 +294,7 @@ void createBoard() {
   }
 }
 
-
+//Since all of our code is 0-indexed, this should also be 0-indexed
 void fill_tile(int x_tile_right, int y_tile_down, uint32_t color){
   //Spawns green rectangle on (x_tile_right + 1, y_tile_down + 1) square on board
   int x = START_X + (x_tile_right* TILE_SIZE);
@@ -452,6 +473,7 @@ void highscore_screen(bool new_high_score){
     //Eye
     tft.fillCircle(155+50, 10+20, 7, WHITE);
     tft.fillCircle(155+50, 10+20, 4, BLACK);
+    
 
   //Text
    if(new_high_score){
@@ -494,17 +516,18 @@ void highscore_screen(bool new_high_score){
 }
 
 
-
 void lose_game_handle(){
 
-  if(game_on){
+  if(game_on) {
   lose_sound();
   delay(650);
   game_on = false;
   noTone(fx_buzzer);
   }
+
   tft.fillScreen(BLACK);
-  if(high_score < score){
+
+  if(high_score < score) {
     high_score = score;
     new_high_score = true;
   }
@@ -518,5 +541,7 @@ void lose_game_handle(){
   snake.reset();
   score = 0;
   new_high_score = false;
+  //Ensures apple displays when the game restarts since the apple object is still there from the previous round
+  apple_counter = 0;
   Initialize_Screen_and_Board();
 }

@@ -156,18 +156,32 @@ class Snake {
       }
     }
 
-    // Changes the direction of the snake
-    void changeDirection(int newDirection) {
-      // Only allow changing direction if it's not opposite to the current direction
-      if(abs(newDirection - direction) != 2) {
-        direction = newDirection;
-      }
-    }
+void Spawn_Snake(int x_tile_right, int y_tile_down){
+  //Spawns green rectangle on (x_tile_right + 1, y_tile_down + 1) square on board
+  int snake_spawn_x = START_X + (x_tile_right* TILE_SIZE);
+  int snake_spawn_y = START_Y + (y_tile_down * TILE_SIZE);
+  
+  tft.fillRect(snake_spawn_x, snake_spawn_y, TILE_SIZE, TILE_SIZE, snake_colour);
 
-    // Increases the length of the snake
-    void increaseLength() {
-      length++;
-    }
+}
+
+
+
+void howToPlayPage(int pageNumber) {
+  int middleTextX = 240;
+  int middleTextY = 0;
+  //Information
+
+  if(pageNumber == 1) {
+    tft.drawRect(START_X, START_Y, BOARD_SIZE, BOARD_SIZE, RED);
+    tft.drawString("WELCOME TO SNAKE GAME!", middleTextX-START_X, middleTextY);
+    tft.drawString("Before you begin please read through these pages!", middleTextX-START_X, middleTextY+START_Y);
+    tft.drawRect(next.xDir-next.width, next.yDir-next.length, next.length, next.width, WHITE);
+    tft.fillRect(next.xDir-next.width, next.yDir-next.length, next.length, next.width, BLUE);
+    tft.setTextColor(WHITE, BLUE);
+    tft.print(next.label);
+    return;
+  }
 
     // Returns the current direction of the snake
     int getDirection() {
@@ -432,7 +446,6 @@ void eatingApple(Apple& apple){
     snake.increaseLength();
   }
 }
-
 
 bool winCondition() {
   return (score == (NUM_OF_TILES*NUM_OF_TILES)-1);
