@@ -101,6 +101,7 @@ class Snake {
 
       for(int i =0; i<(NUM_OF_TILES*NUM_OF_TILES-1);i++){
         bodyY[i] = -3; //Initialize out of screen so body doesn't bug 
+        bodyX[i] = -99;
       }
 
       bodyX[0] = startX;
@@ -132,9 +133,8 @@ class Snake {
        tailX = bodyX[0];
        tailY = bodyY[0];
 
-        //Below can be changed to keep track of only head and tail an shift body according to that
-        //Instead of iterating over the whole body every single time we move
-        // Shift the coordinates of the body segments
+ 
+
         for (int i = 1; i < length; i++) {
           bodyX[i-1] = bodyX[i];
           bodyY[i-1] = bodyY[i];
@@ -152,28 +152,13 @@ class Snake {
         lose_game_handle();
       }
       else if (length > 1){
-        //I think we can move this whole part into eatApple and check it there, that way it can check if its
-        //eaten an apple or eaten (collided with) itself, and then return a true or false so that we can determine
-        //if the player lost the game since it hit itself or to keep going cause it ate an apple
-        //Something like this in the eatApple section: 
-        /*if (head.x == apple.x && head.y == apple.y) {
-            grow();
-            return true;
-          } else {
-            for (int i = 1; i < length; i++) {
-              if (body[i].x == head.x && body[i].y == head.y) {
-                return true;
-              }
-            }
-          }*/
-        //Then we can remove this part of the code here since it would be redundant, but first test the below
-        //code before trying to implement this
+  
         for(int i = 0; i < length; i++) {
-          // Collided with itself (because of the way we have the snake grow after eating an apple,
-          // We have to check if it also collides with the apple to ensure that it doesnt check
-          // doesnt check if the body collides with itself after eating the apple since its always true)
-          if((headX == bodyX[i] && headY == bodyY[i])) {
+  
+          if((headX == bodyX[i-1] && headY == bodyY[i-1]) || ((headX == tailX && headY == tailY))) {
+            lose_game_handle();
             break;
+            
           }
         }
       }
