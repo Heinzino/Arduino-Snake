@@ -57,6 +57,7 @@ int fx_buzzer = 12;
 int game_delay = 300;
 int current_note = 0;
 bool game_on = false;
+bool first_screen_fill = true;
 
 unsigned long time = millis();
 unsigned long oldTime = 0;
@@ -475,9 +476,16 @@ void highscore_screen(bool new_high_score){
     tft.drawLine(305,140,280,155,YELLOW);
 
     //Eye
+    if(first_screen_fill){
     tft.fillCircle(155+50, 10+20, 7, WHITE);
     tft.fillCircle(155+50, 10+20, 4, BLACK);
-    
+    first_screen_fill = false;
+    }
+    else{
+    tft.fillCircle(155+50, 10+20, 7, WHITE);
+    tft.fillCircle(155+50, 10+20, 4, BLACK);
+    delay(200); //Controls blinking animation of eye
+    }
 
   //Text
    if(new_high_score){
@@ -526,6 +534,7 @@ void lose_game_handle(){
   lose_sound();
   delay(650);
   game_on = false;
+  first_screen_fill = true;
   noTone(fx_buzzer);
   }
 
