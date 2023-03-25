@@ -3,11 +3,6 @@
 //create the screen variable from the library
 TFT_eSPI tft = TFT_eSPI();
 
-// Set up variables for the cursor and counter. Cursor starts in the middle of the screen.
-float cursorX = 240.0;
-float cursorY = 160.0;
-int resetCount = 0;
-
 // Setting the joystick pins here so we can easily change them
 #define JOYSTICK_X_PIN A0
 #define JOYSTICK_Y_PIN A1
@@ -19,6 +14,8 @@ int resetCount = 0;
 #define RED 0xF800
 #define GREEN 0x07E0
 #define CYAN 0x07FF
+#define ORANGE 0xF4C6
+#define PURPLE 0x78F6
 #define MAGENTA 0xF81F
 #define YELLOW 0xFFE0
 #define WHITE 0xFFFF
@@ -37,20 +34,34 @@ const int apple_radius = TILE_SIZE/3.0;
 
 const int white_tile = 10;
 const int black_tile = 9;
+uint32_t snake_colour = MAGENTA;
 
-const int score = 0;
-const int apple_counter = 0;
+int score = 0;
+int high_score = 0;
+bool new_high_score = false;
+int apple_counter = 0;
+int snake_start_x = 3;
+int snake_start_y = 3; //snake starts at (4,4) square
 
 int snakeMap[NUM_OF_TILES][NUM_OF_TILES];
 int snakeX[NUM_OF_TILES];
 int snakeY[NUM_OF_TILES];
 
-int joystick_button_read = digitalRead(JOYSTICK_BUTTON_PIN);  // 1 is off 0 is on
-int joystick_x_read = analogRead(JOYSTICK_X_PIN); // 1023 is right, 0 is left
-int joystick_y_read = analogRead(JOYSTICK_Y_PIN); // 1023 is down, 0 is up
+int joystick_button_read;  // 1 is off 0 is on
+int joystick_x_read; // 1023 is right, 0 is left
+int joystick_y_read; // 1023 is down, 0 is up
 
+int buzzer = 11;
+int fx_buzzer = 12;
 
-void Display_Apple();
+int game_delay = 300;
+int current_note = 0;
+bool game_on = false;
+
+void Display_Apple(int x_tile_right, int y_tile_down);
+void lose_game_handle();
+void fill_tile(int x_tile_right, int y_tile_down, uint32_t colour);
+
 class Apple {
 public:
   int x, y;
@@ -83,6 +94,13 @@ class Snake {
       headY = startY;
       tailX = startX;
       tailY = startY;
+
+      for(int i =0; i<(NUM_OF_TILES*NUM_OF_TILES-1);i++){
+        bodyY[i] = -3; //Initialize out of screen so body doesn't bug 
+      }
+
+      bodyX[0] = startX;
+      bodyY[0] = startY;
       length = 1;
       direction = 0; // 0: right, 1: down, 2: left, 3: up
     }
@@ -93,6 +111,7 @@ class Snake {
       switch(direction) {
         case 0: // right
           headX++;
+          //nextX
           break;
         case 1: // down
           headY++;
@@ -106,27 +125,31 @@ class Snake {
       }
 
       // Update the coordinates of the tail and body segments
-      bodyX[length-1] = tailX;
-      bodyY[length-1] = tailY;
+       tailX = bodyX[0];
+       tailY = bodyY[0];
 
-      for(int i = length-1; i > 0; i--) {
-        bodyX[i-1] = bodyX[i];
-        bodyY[i-1] = bodyY[i];
-      }
+    
+        // Shift the coordinates of the body segments
+        for (int i = 1; i < length; i++) {
+          bodyX[i-1] = bodyX[i];
+          bodyY[i-1] = bodyY[i];
+          //Update body display
+          fill_tile(bodyX[i], bodyY[i], snake_colour);
+        }
+  
 
-      tailX = bodyX[0];
-      tailY = bodyY[0];
+        // Update the coordinates of the head
+        bodyX[length-1] = headX;
+        bodyY[length-1] = headY;
 
       // Check if the snake has collided with the wall or with itself
-      if(headX < 0 || headX >= NUM_OF_TILES || headY < 0 || headY >= NUM_OF_TILES) {
-        // Collided with the wall
-        // Handle collision
+      if(headX < 0 || headX >= (NUM_OF_TILES) || headY < 0 || headY >= (NUM_OF_TILES)) {
+        lose_game_handle();
       }
-      else {
+      else if (length > 1){
         for(int i = 0; i < length; i++) {
-          if(headX == bodyX[i] && headY == bodyY[i]) {
+          if((headX == bodyX[i] && headY == bodyY[i])) {
             // Collided with itself
-            // Handle collision
             break;
           }
         }
@@ -160,6 +183,14 @@ class Snake {
     int getHeadY() {
       return headY;
     }
+    
+    int getTailX() {
+      return tailX;
+    }
+
+    int getTailY() {
+      return tailY;
+    }
 
     bool isBodyPart(int x, int y) {
       for (int i = 0; i < length; i++) {
@@ -170,13 +201,33 @@ class Snake {
     return false;
   }
 
+  void reset(){
+
+     //reset body list
+    for(int i = 0; i<length; i++){
+      bodyY[i] = -3; //out of screen
+    }
+  
+    //reset variables 
+    headX = snake_start_x;
+    headY = snake_start_y;
+    tailX = snake_start_x;
+    tailY = snake_start_y;
+    bodyX[0] = snake_start_x;
+    bodyY[0] = snake_start_y;
+    length = 1;
+    direction = 0;
+
+  }
+
     
 };
 
 //Snake starts at (4,4) square
-Snake snake(3,3);
+Snake snake(snake_start_x,snake_start_y);
 
 void setup() {
+  Serial.begin(9600);
 
   // Initalize the screen and set the orientation correctly, then make sure it's clear.
   Initialize_Screen_and_Board();
@@ -185,13 +236,26 @@ void setup() {
   pinMode(JOYSTICK_BUTTON_PIN, INPUT);
   digitalWrite(JOYSTICK_BUTTON_PIN, HIGH);
 
+  //Intitialze Buzzers
+  pinMode(buzzer, OUTPUT);
+  pinMode(fx_buzzer, OUTPUT);
+
 
 }
 
 void loop(){
- Serial.println("TEST");
-}
+ Joystick_Direction();
+ snake.move();
+ display_snake_head();
 
+ //Apple issue here
+ TailDisplay();
+ Apple apple = spawnApple();
+
+ eatingApple(apple);
+ Display_Score_Screen(score);
+ current_note = play_note(current_note);
+}
 
 
 void createBoard() {
@@ -211,12 +275,24 @@ void createBoard() {
 }
 
 
-void Spawn_Snake(int x_tile_right, int y_tile_down){
+void fill_tile(int x_tile_right, int y_tile_down, uint32_t color){
   //Spawns green rectangle on (x_tile_right + 1, y_tile_down + 1) square on board
-  int snake_spawn_x = START_X + (x_tile_right* TILE_SIZE);
-  int snake_spawn_y = START_Y + (y_tile_down * TILE_SIZE);
+  int x = START_X + (x_tile_right* TILE_SIZE);
+  int y = START_Y + (y_tile_down * TILE_SIZE);
   
-  tft.fillRect(snake_spawn_x, snake_spawn_y, TILE_SIZE, TILE_SIZE, MAGENTA);
+  tft.fillRect(x, y, TILE_SIZE, TILE_SIZE, color);
+
+}
+
+void TailDisplay(){
+  int tailX = snake.getTailX();
+  int tailY = snake.getTailY();
+  if(((tailX + tailY) % 2) == 0){ //dark tile
+    fill_tile(tailX, tailY, GRASS_DARK_GREEN);
+  }
+  else{
+    fill_tile(tailX,tailY, GRASS_LIGHT_GREEN);
+  }
 
 }
 
@@ -240,8 +316,7 @@ void Display_Apple(int x_tile_right, int y_tile_down){
 }
 
 void Display_Score_Screen(int score){
-  Display_Apple(-2,0);
-
+  Display_Apple(-2,0); //Part of Score_Screen
   String text = String(score);
   tft.setTextSize(2);
 
@@ -263,7 +338,7 @@ void Snake_Eye(){
   int pupil_radius = 3;
 
   //First eye
-  float origin_xo = START_X + (snakeX_pos * TILE_SIZE) + TILE_SIZE*0.75;
+  float origin_xo = START_X + (snakeX_pos * TILE_SIZE) + TILE_SIZE*0.5;
   float origin_yo = START_Y + ((snakeY_pos+1) * TILE_SIZE) - TILE_SIZE*0.75;
   tft.fillCircle(origin_xo, origin_yo, eye_radius, WHITE);
   tft.fillCircle(origin_xo, origin_yo, pupil_radius, BLACK);
@@ -277,23 +352,35 @@ void Snake_Eye(){
 }
 
 
+void display_snake_head(){
+  fill_tile(snake.getHeadX(),snake.getHeadY(), snake_colour);   
+  Snake_Eye();
+}
+
+
 void Initialize_Screen_and_Board(){
   //Makes background black
   tft.begin();
   tft.setRotation(1); //Makes starting point at top left corner of the screen when its horizontal
   tft.fillScreen(BLACK);
   createBoard();
-  Spawn_Snake(snake.getHeadX(),snake.getHeadY());   //Starts snake at (4,4) square on board
-  Snake_Eye();
-  Display_Score_Screen(score); //Display score of 0 
+  game_on = true;
 }
 
-
 void Joystick_Direction(){
+  //Read from Joystick
+  joystick_button_read = digitalRead(JOYSTICK_BUTTON_PIN);
+  joystick_x_read = analogRead(JOYSTICK_X_PIN);
+  joystick_y_read = analogRead(JOYSTICK_Y_PIN);
+
+  int x_equilibrium = 520;
+  int y_equilibrium = 501;
+  int buffer = 15;
+
   // Determine the dominant axis of the joystick movement
-if(abs(joystick_x_read - 520) > abs(joystick_y_read - 501)) {
+if((abs(joystick_x_read - x_equilibrium) > abs(joystick_y_read - y_equilibrium)) && ((abs(joystick_x_read - x_equilibrium) - abs(joystick_y_read - y_equilibrium)) > buffer) ) {
   // Move the snake horizontally
-  if(joystick_x_read > 520) {
+  if(joystick_x_read > x_equilibrium && (joystick_x_read - x_equilibrium > buffer)) {
     // Move right
     snake.changeDirection(0);
   }
@@ -302,9 +389,9 @@ if(abs(joystick_x_read - 520) > abs(joystick_y_read - 501)) {
     snake.changeDirection(2);
   }
 }
-else {
+else if ((abs(joystick_x_read - x_equilibrium) < abs(joystick_y_read - y_equilibrium)) && ((abs(joystick_y_read - y_equilibrium) - abs(joystick_x_read - x_equilibrium)) > buffer) ) {
   // Move the snake vertically
-  if(joystick_y_read > 501) {
+  if(joystick_y_read > y_equilibrium && (joystick_y_read - y_equilibrium) > buffer) {
     // Move down
     snake.changeDirection(1);
   }
@@ -313,13 +400,17 @@ else {
     snake.changeDirection(3);
   }
 }
+else{
+  //Keep Direction
+  snake.changeDirection(snake.getDirection());
 }
 
-void spawnApple(){
+}
 
+Apple spawnApple(){
   if(apple_counter == 0){
 
-    int appleX, appleY;
+    long appleX, appleY;
 
     do{
     appleX = random(NUM_OF_TILES);
@@ -327,7 +418,108 @@ void spawnApple(){
     }
     while(snake.isBodyPart(appleX,appleY)); //Generate new if apple is part of body
 
-    Apple apple(appleX,appleY);
+    apple_counter++;
+    return Apple(appleX,appleY);
 
   }
+}
+
+void eatingApple(Apple& apple){
+  if(apple.collidesWith(snake.getHeadX(), snake.getHeadY())){
+    apple_sound();
+    apple_counter--;
+    score++;
+    snake.increaseLength();
+  }
+}
+
+
+bool winCondition() {
+  return (score == (NUM_OF_TILES*NUM_OF_TILES)-1);
+}
+
+void highscore_screen(bool new_high_score){
+
+  //Icons
+    Display_Apple(2,3);
+    
+    //Star
+    tft.drawLine(280,155,290,130,YELLOW);
+    tft.drawLine(290,130,300,155,YELLOW);
+    tft.drawLine(300,155, 275, 140, YELLOW);
+    tft.drawLine(275,140, 305, 140, YELLOW);
+    tft.drawLine(305,140,280,155,YELLOW);
+
+    //Eye
+    tft.fillCircle(155+50, 10+20, 7, WHITE);
+    tft.fillCircle(155+50, 10+20, 4, BLACK);
+    
+
+  //Text
+   if(new_high_score){
+      tft.setTextColor(BLUE,BLACK);
+      tft.setTextSize(2);
+      tft.drawString("NEW HIGH SCORE",155, 200);
+    }
+
+    if(winCondition()){
+      tft.setTextSize(4);
+      tft.setTextColor(RED,BLACK);
+      tft.drawString("Y",10,110);
+      tft.setTextColor(ORANGE,BLACK);
+      tft.drawString("O",10,145);
+      tft.setTextColor(YELLOW,BLACK);
+      tft.drawString("U",10,180);
+      tft.setTextColor(GREEN,BLACK);
+      tft.drawString("W",450,110);
+      tft.setTextColor(BLUE,BLACK);
+      tft.drawString("I",450,145);
+      tft.setTextColor(PURPLE,BLACK);
+      tft.drawString("N",450,180);
+    }
+
+    tft.setTextSize(6);
+    tft.setTextColor(GREEN,BLACK);
+    tft.drawString("COBRA", 155, 10);
+
+    tft.setTextSize(2);
+    tft.setTextColor(WHITE,BLACK);
+    tft.drawString("Push joystick to play again", 82, 290);
+
+    tft.drawString(String(score),170,162);
+    tft.drawString(String(high_score), 280, 162);
+
+    tft.drawRect(75,285,58,25,WHITE);
+    delay(250);
+    tft.drawRect(75,285,58,25,BLUE);
+
+}
+
+
+
+void lose_game_handle(){
+
+  if(game_on){
+  lose_sound();
+  delay(650);
+  game_on = false;
+  noTone(fx_buzzer);
+  }
+  tft.fillScreen(BLACK);
+  if(high_score < score){
+    high_score = score;
+    new_high_score = true;
+  }
+
+  while(joystick_button_read == 1){ //joystick not pressed
+      highscore_screen(new_high_score);
+      joystick_button_read = digitalRead(JOYSTICK_BUTTON_PIN);
+  }
+
+  //Restart game if joystick pressed
+  snake.reset();
+  score = 0;
+  new_high_score = false;
+  apple_counter = 0;
+  Initialize_Screen_and_Board();
 }
